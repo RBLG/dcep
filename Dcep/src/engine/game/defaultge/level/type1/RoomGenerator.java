@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.Random;
 
-import engine.physic.basic2DInteraction.InteractionObserver;
-import engine.physic.basic2DvectorialV2.ISegment;
+import engine.physic.basic2DInteractionV1.InteractionObserver;
 import engine.game.defaultge.level.type1.RoomPool.DoorType;
-import engine.physic.basic2DInteraction.InteractionEngine.InteractionLayer;
+import engine.physic.basic2DInteractionV1.InteractionEngine.InteractionLayer;
+import engine.physic.basic2Dvectorial.ISegment;
 import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.renderable.Rectangle;
 import engine.save.room.type1.RoomState;

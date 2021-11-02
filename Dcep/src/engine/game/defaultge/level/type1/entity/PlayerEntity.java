@@ -3,11 +3,10 @@ package engine.game.defaultge.level.type1.entity;
 import java.util.EnumMap;
 import engine.game.defaultge.level.type1.Room;
 import engine.game.defaultge.level.type1.StageContext;
-import engine.physic.basic2DInteraction.InteractionObserver;
-import engine.physic.basic2DInteraction.RelativeInteractionObserver;
+import engine.physic.basic2DInteractionV1.InteractionObserver;
+import engine.physic.basic2DInteractionV1.RelativeInteractionObserver;
 import engine.physic.basic2Dvectorial.MotionVector;
 import engine.physic.basic2Dvectorial.MovingBox;
-import engine.physic.basic2Dvectorial.Point;
 import engine.physic.basic2Dvectorial.motionprovider.BasicV2PlayerInput;
 import engine.physic.basic2Dvectorial.motionprovider.BasicV2PlayerInput.PlayerInputV2Feedbackable;
 import engine.render.engine2d.DrawLayer;
@@ -21,6 +20,7 @@ import static my.util.ImageCache.*;
 import my.util.CardinalDirection;
 import my.util.Geometry;
 import my.util.Keys;
+import my.util.geometry.IPoint;
 
 //@Deprecated
 public class PlayerEntity extends EntityV1 implements PlayerInputV2Feedbackable {
@@ -40,7 +40,8 @@ public class PlayerEntity extends EntityV1 implements PlayerInputV2Feedbackable 
 		this.motprov = new BasicV2PlayerInput(scontext.getInputE(), this);
 		MotionVector vec = new MotionVector(0, 0);
 		this.hitbox = new MovingBox(0, 0, 20, 17, vec, this.motprov);
-		this.mod = new HitBoxBasedModifier(this.hitbox, new Point(0, 0), 0);
+		this.mod = new HitBoxBasedModifier(this.hitbox, new IPoint.Point(0, 0), 0);
+		
 		// TODO a externaliser en fichier de conf
 		EnumMap<PlayerVisualState, I2DRenderable> e = new EnumMap<>(PlayerVisualState.class);
 		e.put(PlayerVisualState.up_move, new LoopingAnimation(getImages2("stages/type1/player_redbox/up_move")));

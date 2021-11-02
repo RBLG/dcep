@@ -18,8 +18,8 @@
   </build>
   <dependencies>
   	<dependency>
-  		<groupId>Util</groupId>
-  		<artifactId>Util</artifactId>
+  		<groupId>Dcep</groupId>
+  		<artifactId>Dcep</artifactId>
   		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
   </dependencies>

@@ -2,7 +2,7 @@ package engine.save.room.type1;
 
 import java.io.Serializable;
 
-import engine.physic.basic2DvectorialV2.ISegment;
+import engine.physic.basic2Dvectorial.ISegment;
 
 public class WallSlice implements Serializable {
 	private static final long serialVersionUID = 6713305338311582291L;

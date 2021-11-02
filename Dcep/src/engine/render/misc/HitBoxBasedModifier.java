@@ -3,22 +3,22 @@ package engine.render.misc;
 import engine.misc.util2d.position.IMotionModifier;
 import engine.physic.basic2Dvectorial.MotionVector;
 import engine.physic.basic2Dvectorial.MovingBox;
-import engine.physic.basic2Dvectorial.Point;
+import my.util.geometry.IPoint;
 
 public class HitBoxBasedModifier implements IMotionModifier {
 
 	protected MovingBox hitbox;
-	protected Point offset;
+	protected IPoint offset;
 	protected long beginning;
 	protected MotionVector vec;
-	protected Point pos;
+	protected IPoint.Point pos;
 
-	public HitBoxBasedModifier(MovingBox nhitbox, Point noffset, long nbeginning) {
+	public HitBoxBasedModifier(MovingBox nhitbox, IPoint noffset, long nbeginning) {
 		this.hitbox = nhitbox;
 		this.vec = nhitbox.getVec().clone();
 		this.offset = noffset;
 		this.beginning = nbeginning;
-		this.pos = new Point(nhitbox.getX(), nhitbox.getY());
+		this.pos = new IPoint.Point(nhitbox.getX(), nhitbox.getY());
 
 	}
 

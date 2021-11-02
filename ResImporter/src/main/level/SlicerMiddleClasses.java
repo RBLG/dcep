@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 
-import engine.physic.basic2DvectorialV2.ISegment;
+import engine.physic.basic2Dvectorial.ISegment;
 import engine.save.room.type1.WallSlice;
 import my.util.CardinalDirection;
 

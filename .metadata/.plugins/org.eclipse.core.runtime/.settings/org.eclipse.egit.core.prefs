@@ -1,5 +1,5 @@
-GitRepositoriesView.GitDirectories=F\:\\FRobin\\me\\projets\\gros projets\\dcep\\Dcep\\.git;F\:\\FRobin\\me\\projets\\gros projets\\dcep\\ResImporter\\.git;F\:\\FRobin\\me\\projets\\gros projets\\rhume\\RhumeCore\\.git;F\:\\FRobin\\me\\projets\\workspace java\\LoopCore\\.git;F\:\\FRobin\\me\\projets\\gros projets\\rhume\\Swingue\\.git;F\:\\FRobin\\me\\projets\\gros projets\\rhume\\Util\\.git;
-GitRepositoriesView.GitDirectories.relative=Dcep\\.git;ResImporter\\.git;F\:\\FRobin\\me\\projets\\gros projets\\rhume\\RhumeCore\\.git;F\:\\FRobin\\me\\projets\\workspace java\\LoopCore\\.git;F\:\\FRobin\\me\\projets\\gros projets\\rhume\\Swingue\\.git;F\:\\FRobin\\me\\projets\\gros projets\\rhume\\Util\\.git;
+GitRepositoriesView.GitDirectories=F\:\\FRobin\\me\\projets\\gros projets\\dcep\\.git;F\:\\FRobin\\me\\projets\\gros projets\\rhume\\.git;F\:\\FRobin\\me\\projets\\workspace java\\Util\\.git;
+GitRepositoriesView.GitDirectories.relative=.git;F\:\\FRobin\\me\\projets\\gros projets\\rhume\\.git;F\:\\FRobin\\me\\projets\\workspace java\\Util\\.git;
 RepositoryGroups.uuids=
-RepositorySearchDialogSearchPath=C\:\\Users\\Robin\\git
+RepositorySearchDialogSearchPath=F\:\\FRobin\\me\\projets\\gros projets\\dcep
 eclipse.preferences.version=1

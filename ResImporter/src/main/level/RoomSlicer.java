@@ -8,11 +8,11 @@ import javax.xml.ws.Holder;
 
 import engine.game.defaultge.level.type1.Room;
 import engine.physic.basic2Dvectorial.HorizontalSegment;
+import engine.physic.basic2Dvectorial.ISegment;
 import engine.physic.basic2Dvectorial.VerticalSegment;
-import engine.physic.basic2DvectorialV2.ISegment;
-import engine.save.room.type1.RoomState.Tile;
-import engine.save.room.type1.RoomState.Tile.Junction;
-import engine.save.room.type1.RoomState.Tile.Neighbor;
+import engine.physic.basic2Dvectorial.pathfinding.Tile;
+import engine.physic.basic2Dvectorial.pathfinding.Tile.Junction;
+import engine.physic.basic2Dvectorial.pathfinding.Tile.Neighbor;
 import engine.save.room.type1.WallSlice;
 import main.level.SlicerMiddleClasses.*;
 import my.util.CardinalDirection;

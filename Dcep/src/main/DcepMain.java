@@ -2,8 +2,8 @@ package main;
 
 import engine.game.IGameEngine;
 import engine.game.defaultge.DefaultGameEngine;
+import engine.input.BasicInputEngine;
 import engine.input.IInputEngine;
-import engine.input.basic.BasicInputEngine;
 import engine.render.misc.DcepJFrame;
 
 public class DcepMain {

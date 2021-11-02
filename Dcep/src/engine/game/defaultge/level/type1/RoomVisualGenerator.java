@@ -8,10 +8,10 @@ import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import engine.physic.basic2Dvectorial.pathfinding.Tile;
 import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.renderable.I2DRenderable;
 import engine.render.engine2d.renderable.StillImage;
-import engine.save.room.type1.RoomState.Tile;
 import engine.save.room.type1.WallSlice;
 import my.util.ImageCache;
 import my.util.MyConfigParser;

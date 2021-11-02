@@ -5,11 +5,11 @@ import java.util.function.Consumer;
 import engine.game.defaultge.level.type1.Room;
 import engine.game.defaultge.level.type1.StageType1;
 import engine.physic.basic2Dvectorial.MovingBox;
-import engine.physic.basic2Dvectorial.Point;
 import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.renderable.MapGraphicEntity;
 import engine.render.misc.HitBoxBasedModifier;
 import my.util.Timing;
+import my.util.geometry.IPoint;
 
 public class BasicEntityV1<VISUALSTATE extends Enum<VISUALSTATE>> extends EntityV1 {
 
@@ -39,7 +39,7 @@ public class BasicEntityV1<VISUALSTATE extends Enum<VISUALSTATE>> extends Entity
 			}
 		};
 		nbox.setOBs(c);
-		mod = new HitBoxBasedModifier(this.hitbox, new Point(0, 0), 0);
+		mod = new HitBoxBasedModifier(this.hitbox, new IPoint.Point(0, 0), 0);
 		this.visual.getPos().setModifier(mod);
 	}
 
