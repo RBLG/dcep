@@ -1,20 +1,20 @@
 package engine.save.room.type1;
 
-import my.util.CardinalDirection;
+import my.util.Cardinal;
 
 public enum Side {
 	north, south, east, west;
 
-	public CardinalDirection toCardinal() {
+	public Cardinal toCardinal() {
 		switch (this) {
 		case north:
-			return CardinalDirection.north;
+			return Cardinal.north;
 		case south:
-			return CardinalDirection.south;
+			return Cardinal.south;
 		case west:
-			return CardinalDirection.west;
+			return Cardinal.west;
 		case east:
-			return CardinalDirection.east;
+			return Cardinal.east;
 		default:
 			return null; // en esperant que ça arrive jamais :')
 		}

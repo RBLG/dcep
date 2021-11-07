@@ -7,7 +7,7 @@ import engine.game.defaultge.GameContext;
 import engine.game.defaultge.level.IStageEngine;
 import engine.game.defaultge.level.StageEngine;
 import engine.game.defaultge.level.type1.entity.PathfindingTester;
-import engine.game.defaultge.level.type1.entity.PlayerEntity;
+import engine.game.defaultge.level.type1.entity.PlayerEntityV3;
 import engine.loop.ILoopable;
 import engine.loop.TimedAction;
 import engine.misc.util2d.position.IMotionModifier;
@@ -16,7 +16,7 @@ import engine.render.engine2d.Basic2DEngine;
 import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.Scene;
 import engine.render.misc.DcepJFrame;
-import my.util.CardinalDirection;
+import my.util.Cardinal;
 import my.util.EnumMapList;
 import my.util.Keys;
 import my.util.Log;
@@ -25,7 +25,7 @@ public class StageType1 extends StageEngine<Basic2DEngine> {
 
 	protected Room[][] floor;
 	protected Point current = new Point(StageGenerator.fcentx, StageGenerator.fcenty);
-	protected PlayerEntity player;
+	protected PlayerEntityV3 player;
 	// protected IStageTree tree;
 	// protected PlayerSoul plrstats;
 	protected StageMap map = new StageMap();
@@ -58,11 +58,11 @@ public class StageType1 extends StageEngine<Basic2DEngine> {
 		
 		this.scontext = new StageContext(gcontext,this);
 		this.floor = StageGenerator.genFloor(this);
-		this.player = new PlayerEntity(scontext);
+		this.player = new PlayerEntityV3(scontext);
 		this.todos.add(Doing.inroom, this::goInRoom);
 
 		this.map.img.setVisible(false);
-		this.scene.addRenderable(this.map.img, DrawLayer.Map);
+		this.scene.add(this.map.img, DrawLayer.Map);
 	}
 
 	@Override
@@ -76,11 +76,11 @@ public class StageType1 extends StageEngine<Basic2DEngine> {
 		this.scene.setVisible(true);
 		this.setCamOnRoom(this.current.x, this.current.y);
 
-		this.getCurrent().playerEnter(CardinalDirection.north, this.player);
+		this.getCurrent().playerEnter(Cardinal.north, this.player);
 		ge.startDefaultLoop(this);
 	}
 
-	public void moveRoom(CardinalDirection dir) {
+	public void moveRoom(Cardinal dir) {
 		ArrayList<TimedAction> actions = new ArrayList<>();
 		this.todos.get(Doing.betweenroom).clear();
 
@@ -106,10 +106,10 @@ public class StageType1 extends StageEngine<Basic2DEngine> {
 		}
 		//////////////// ENTRE L'ENTRE ET SORTIE/////////
 		actions.add(new TimedAction(300, (long time) -> {
-			pre.go(time);
+			pre.update(time);
 			pre.playerLeave(this.player);
 			post.playerEnter(dir, this.player);
-			post.go(time);
+			post.update(time);
 //			int nx = player.getHitbox().getX(), ny = player.getHitbox().getY();
 //			
 			// nx = dir.toXMultiplier();
@@ -139,12 +139,12 @@ public class StageType1 extends StageEngine<Basic2DEngine> {
 	}
 
 	public void goInRoom(long time) {
-		this.getCurrent().go(time);
+		this.getCurrent().update(time);
 		// this.player.think();
 		/////////////////////////////////////////////////////////////
 		if (scontext.getInputE().isPressed(Keys.space.value)) {
 			PathfindingTester pft = new PathfindingTester(this);
-			this.getCurrent().enter(CardinalDirection.north, pft);
+			this.getCurrent().enter(Cardinal.north, pft);
 			Log.log(this, "new tester");
 		}
 		/////////////////////////////////////////////////////////////

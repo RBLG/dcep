@@ -80,7 +80,7 @@ public final class StageGenerator extends StageType1 {
 		for (int itx = 0; itx < fsizex; itx++) {
 			// murs épais sur l'axe des Y
 			Rectangle rec2 = new Rectangle(itx * cyclex - borderx, 0, borderx, cycley * fsizey, wallcolor);
-			stage.scene.addRenderable(rec2, DrawLayer.Game_Ceiling);
+			stage.scene.add(rec2, DrawLayer.Game_Ceiling);
 			for (int ity = 0; ity < fsizey; ity++) {
 				// si il y a salle
 				if (prefloor[itx][ity]) {
@@ -110,19 +110,19 @@ public final class StageGenerator extends StageType1 {
 					}
 
 					nfloor[itx][ity] = rom;
-					stage.scene.addRenderable(nfloor[itx][ity].getScene(), DrawLayer.Room_Walls);
+					stage.scene.add(nfloor[itx][ity].getScene(), DrawLayer.Room_Walls);
 
 				} else {
 					// si c'est un mur
 					Rectangle rec = new Rectangle(itx * cyclex, ity * cycley, Room.rosizex, Room.rosizey, wallcolor);
-					stage.scene.addRenderable(rec, DrawLayer.Game_Ceiling);
+					stage.scene.add(rec, DrawLayer.Game_Ceiling);
 				}
 			}
 		}
 		// murs épais sur l'axe des Y
 		for (int ity = 0; ity < fsizey; ity++) {
 			Rectangle rec2 = new Rectangle(0, ity * cycley - bordery, cyclex * fsizex, bordery, wallcolor);
-			stage.scene.addRenderable(rec2, DrawLayer.Game_Ceiling);
+			stage.scene.add(rec2, DrawLayer.Game_Ceiling);
 		}
 		// print de la map dans la console
 		for (int ity = 0; ity < fsizey; ity++) {

@@ -47,11 +47,11 @@ public class TestGameEngine implements IGameEngine, ILoopable {
 		this.img2 = new LoopingAnimation(ImageCache.getImages("animtest").toArray(new Image[4]), new Point(100, 200),
 				100);
 
-		this.scene.addRenderable(img, DrawLayer.Room_Entities);
+		this.scene.add(img, DrawLayer.Room_Entities);
 
 		BasicText txt = new BasicText(new Point(40, 100), "test");
 
-		this.scene.addRenderable(txt, DrawLayer.Menu);
+		this.scene.add(txt, DrawLayer.Menu);
 
 		// this.scene.addRenderable(img2, DrawLayer.Game_Entities);
 	}

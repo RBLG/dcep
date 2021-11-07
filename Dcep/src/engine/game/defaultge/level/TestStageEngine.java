@@ -83,7 +83,7 @@ public class TestStageEngine extends StageEngine<Basic2DEngine> {
 
 		this.ren.setScene(this.scene);
 		this.ren.load(nge.getAdapter());
-		this.scene.addRenderable(img, DrawLayer.Room_Entities);
+		this.scene.add(img, DrawLayer.Room_Entities);
 
 		this.startLoop();
 	}

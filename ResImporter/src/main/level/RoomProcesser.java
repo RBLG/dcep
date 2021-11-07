@@ -16,7 +16,7 @@ import main.level.SlicerMiddleClasses.CoCaSegments;
 import main.level.SlicerMiddleClasses.Segments;
 import engine.save.room.type1.RoomState.Door;
 import engine.save.room.type1.RoomType;
-import my.util.CardinalDirection;
+import my.util.Cardinal;
 import my.util.ImageCache;
 import my.util.Log;
 
@@ -56,10 +56,10 @@ public class RoomProcesser {
 		this.room = new RoomState(segs.toSuper(), doors, slicer.tiles, type, slicer.vslices.get(69), visconf);
 		/////////////////////////////////////////////////
 
-		String e = segs.get(69).get(CardinalDirection.north).size() + "|" //
-				+ segs.get(69).get(CardinalDirection.south).size() + "|" //
-				+ segs.get(69).get(CardinalDirection.east).size() + "|" //
-				+ segs.get(69).get(CardinalDirection.west).size();
+		String e = segs.get(69).get(Cardinal.north).size() + "|" //
+				+ segs.get(69).get(Cardinal.south).size() + "|" //
+				+ segs.get(69).get(Cardinal.east).size() + "|" //
+				+ segs.get(69).get(Cardinal.west).size();
 		Log.log(this, "imported: boxes:" + slicer.vslices.size() + " walls:" + e + " doors:" + doors.size());
 	}
 
@@ -131,8 +131,8 @@ public class RoomProcesser {
 					} // si y a mur au nord donc repond aux collisions vers le nord
 
 					segs.computeIfAbsent(ne, (e) -> (new CaSegments()));
-					segs.get(ne).computeIfAbsent(CardinalDirection.north, (e) -> new Segments());
-					segs.get(ne).get(CardinalDirection.north).add(new HorizontalSegment(itx1, itx2 - 2, ity1 - 1, ne));
+					segs.get(ne).computeIfAbsent(Cardinal.north, (e) -> new Segments());
+					segs.get(ne).get(Cardinal.north).add(new HorizontalSegment(itx1, itx2 - 2, ity1 - 1, ne));
 
 				}
 				if (stx2) {
@@ -143,8 +143,8 @@ public class RoomProcesser {
 						itx2++;
 					}
 					segs.computeIfAbsent(se, (e) -> (new CaSegments()));
-					segs.get(se).computeIfAbsent(CardinalDirection.south, (e) -> new Segments());
-					segs.get(se).get(CardinalDirection.south).add(new HorizontalSegment(itx1, itx2 - 2, ity1, se));
+					segs.get(se).computeIfAbsent(Cardinal.south, (e) -> new Segments());
+					segs.get(se).get(Cardinal.south).add(new HorizontalSegment(itx1, itx2 - 2, ity1, se));
 
 				}
 				if (sty) {
@@ -155,8 +155,8 @@ public class RoomProcesser {
 						ity2++;
 					}
 					segs.computeIfAbsent(sw, (e) -> (new CaSegments()));
-					segs.get(sw).computeIfAbsent(CardinalDirection.west, (e) -> new Segments());
-					segs.get(sw).get(CardinalDirection.west).add(new VerticalSegment(itx1 - 1, ity1, ity2 - 2, sw));
+					segs.get(sw).computeIfAbsent(Cardinal.west, (e) -> new Segments());
+					segs.get(sw).get(Cardinal.west).add(new VerticalSegment(itx1 - 1, ity1, ity2 - 2, sw));
 
 				}
 				if (sty2) {
@@ -167,8 +167,8 @@ public class RoomProcesser {
 						ity2++;
 					}
 					segs.computeIfAbsent(se, (e) -> (new CaSegments()));
-					segs.get(se).computeIfAbsent(CardinalDirection.east, (e) -> new Segments());
-					segs.get(se).get(CardinalDirection.east).add(new VerticalSegment(itx1, ity1, ity2 - 2, se));
+					segs.get(se).computeIfAbsent(Cardinal.east, (e) -> new Segments());
+					segs.get(se).get(Cardinal.east).add(new VerticalSegment(itx1, ity1, ity2 - 2, se));
 
 				}
 			}

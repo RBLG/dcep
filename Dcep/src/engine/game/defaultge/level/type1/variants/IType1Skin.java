@@ -29,7 +29,7 @@ public abstract class IType1Skin {
 		return missings;
 	}
 
-	public enum T1Res {
+	public enum T1Res { //deplacer hors d'ici
 		player_idle_up, player_idle_left, player_idle_down, player_idle_right, //
 		player_walk_up, player_walk_left, player_walk_down, player_walk_right, //
 		player_strike_up, player_strike_left, player_strike_down, player_strike_right //

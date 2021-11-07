@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 import engine.physic.basic2Dvectorial.ISegment;
 import engine.save.room.type1.WallSlice;
-import my.util.CardinalDirection;
+import my.util.Cardinal;
 
 public class SlicerMiddleClasses {
 	//////////////////////////////////////////////////////////////////////////
@@ -17,11 +17,11 @@ public class SlicerMiddleClasses {
 			super();
 		}
 
-		public HashMap<Integer, EnumMap<CardinalDirection, ArrayList<ISegment>>> toSuper() {
-			HashMap<Integer, EnumMap<CardinalDirection, ArrayList<ISegment>>> rtn = new HashMap<>();
+		public HashMap<Integer, EnumMap<Cardinal, ArrayList<ISegment>>> toSuper() {
+			HashMap<Integer, EnumMap<Cardinal, ArrayList<ISegment>>> rtn = new HashMap<>();
 			for (Entry<Integer, CaSegments> entry1 : this.entrySet()) {
-				EnumMap<CardinalDirection, ArrayList<ISegment>> nenum = new EnumMap<>(CardinalDirection.class);
-				for (Entry<CardinalDirection, Segments> entry2 : entry1.getValue().entrySet()) {
+				EnumMap<Cardinal, ArrayList<ISegment>> nenum = new EnumMap<>(Cardinal.class);
+				for (Entry<Cardinal, Segments> entry2 : entry1.getValue().entrySet()) {
 					nenum.put(entry2.getKey(), new ArrayList<>(entry2.getValue()));
 				}
 				rtn.put(entry1.getKey(), nenum);
@@ -30,11 +30,11 @@ public class SlicerMiddleClasses {
 		}
 	}
 
-	public static class CaSegments extends EnumMap<CardinalDirection, Segments> {
+	public static class CaSegments extends EnumMap<Cardinal, Segments> {
 		private static final long serialVersionUID = 1989243544258346078L;
 
 		public CaSegments() {
-			super(CardinalDirection.class);
+			super(Cardinal.class);
 		}
 	}
 

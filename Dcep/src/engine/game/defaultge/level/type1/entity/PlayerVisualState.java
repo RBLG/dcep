@@ -1,11 +1,11 @@
 package engine.game.defaultge.level.type1.entity;
 
-import my.util.CardinalDirection;
+import my.util.Cardinal;
 
 public enum PlayerVisualState {
 	up_move, down_move, left_move, right_move, up_stand, down_stand, left_stand, right_stand;
 
-	public static PlayerVisualState concat(boolean mov, CardinalDirection dir) {
+	public static PlayerVisualState concat(boolean mov, Cardinal dir) {
 		switch (dir) {
 		case north:
 			return (mov) ? up_move : up_stand;

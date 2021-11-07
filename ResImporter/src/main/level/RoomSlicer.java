@@ -15,7 +15,7 @@ import engine.physic.basic2Dvectorial.pathfinding.Tile.Junction;
 import engine.physic.basic2Dvectorial.pathfinding.Tile.Neighbor;
 import engine.save.room.type1.WallSlice;
 import main.level.SlicerMiddleClasses.*;
-import my.util.CardinalDirection;
+import my.util.Cardinal;
 import my.util.Log;
 import my.util.geometry.IRectangle;
 import my.util.geometry.IVector;
@@ -45,7 +45,7 @@ public class RoomSlicer {
 		for (Entry<Integer, CaSegments> entry : allsegs.entrySet()) {
 			CaSegments segs = entry.getValue();
 			ArrayList<WallSlice> slices = new ArrayList<>();
-			for (ISegment base : segs.get(CardinalDirection.north)) {
+			for (ISegment base : segs.get(Cardinal.north)) {
 				if (base.getY() <= 0) {
 					continue;
 				}
@@ -55,7 +55,7 @@ public class RoomSlicer {
 				for (int it1 = base.getX(); it1 < base.getX2(); it1++) {
 					lstopseg = topseg;
 					int height = -999;
-					for (ISegment top : segs.get(CardinalDirection.south)) {
+					for (ISegment top : segs.get(Cardinal.south)) {
 						if (top.getX() <= it1 && top.getX2() >= it1) {
 							if (top.getY() > height && top.getY() < base.getY()) {
 								height = top.getY();
@@ -85,7 +85,7 @@ public class RoomSlicer {
 		for (Entry<Integer, CaSegments> entry : allsegs.entrySet()) {
 			CaSegments segs = entry.getValue();
 			ArrayList<WallSlice> slices = new ArrayList<>();
-			for (ISegment base : segs.get(CardinalDirection.west)) {
+			for (ISegment base : segs.get(Cardinal.west)) {
 				if (base.getX() <= 0) {
 					continue;
 				}
@@ -95,7 +95,7 @@ public class RoomSlicer {
 				for (int it1 = base.getY(); it1 < base.getY2(); it1++) {
 					lstopseg = topseg;
 					int height = -999;
-					for (ISegment top : segs.get(CardinalDirection.east)) {
+					for (ISegment top : segs.get(Cardinal.east)) {
 						if (top.getY() <= it1 && top.getY2() >= it1) {
 							if (top.getX() > height && top.getX() < base.getX()) {
 								height = top.getX();

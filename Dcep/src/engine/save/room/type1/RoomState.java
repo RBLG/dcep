@@ -9,7 +9,8 @@ import engine.game.defaultge.level.type1.Room;
 import engine.game.defaultge.level.type1.RoomPool.DoorType;
 import engine.physic.basic2Dvectorial.ISegment;
 import engine.physic.basic2Dvectorial.pathfinding.Tile;
-import my.util.CardinalDirection;
+import my.util.Cardinal;
+import my.util.geometry.IPoint;
 import my.util.geometry.IPoint.Point;
 
 public class RoomState implements Serializable {
@@ -17,7 +18,7 @@ public class RoomState implements Serializable {
 	private static final long serialVersionUID = 3636697824805539964L;
 
 	// public final int[][] boxes;
-	public final HashMap<Integer, EnumMap<CardinalDirection, ArrayList<ISegment>>> walls;
+	public final HashMap<Integer, EnumMap<Cardinal, ArrayList<ISegment>>> walls;
 	// public final Door[] doors;
 	public final EnumMap<Side, Door> doors;
 	public final ArrayList<Tile> navmesh; // chemins que les entités peuvent suivre
@@ -26,7 +27,7 @@ public class RoomState implements Serializable {
 	public final String visconfpath;
 
 	public RoomState(//
-			HashMap<Integer, EnumMap<CardinalDirection, ArrayList<ISegment>>> nwalls, EnumMap<Side, Door> ndoors, //
+			HashMap<Integer, EnumMap<Cardinal, ArrayList<ISegment>>> nwalls, EnumMap<Side, Door> ndoors, //
 			ArrayList<Tile> nnavmesh, //
 			RoomType ntype, //
 			ArrayList<WallSlice> nwallslices, //
@@ -45,7 +46,7 @@ public class RoomState implements Serializable {
 		return doors;
 	}
 
-	public Point getDoorFront(CardinalDirection dir, int ewidth, int eheight) {
+	public Point getDoorFront(Cardinal dir, IPoint wh) {
 		RoomState.Door entrydoor = null;
 		for (RoomState.Door door : doors.values()) {
 			if (door.side.toOposite().toCardinal() == dir) {
@@ -58,11 +59,11 @@ public class RoomState implements Serializable {
 
 		int nx = 0, ny = 0;
 		if (dir.isHorizontal()) {
-			nx = (dir == CardinalDirection.east) ? 1 : Room.rosizex - eheight - 1;
-			ny = entrydoor.pos + (entrydoor.size - eheight) / 2;
+			nx = (dir == Cardinal.east) ? 1 : Room.rosizex - wh.getY() - 1;
+			ny = entrydoor.pos + (entrydoor.size - wh.getY()) / 2;
 		} else {
-			nx = entrydoor.pos + (entrydoor.size - ewidth) / 2;
-			ny = (dir == CardinalDirection.north) ? Room.rosizey - ewidth - 1 : 1;
+			nx = entrydoor.pos + (entrydoor.size - wh.getX()) / 2;
+			ny = (dir == Cardinal.north) ? Room.rosizey - wh.getX() - 1 : 1;
 		}
 		return new Point(nx, ny);
 	}
