@@ -3,12 +3,10 @@ package engine.game.defaultge.level;
 import java.util.function.Supplier;
 
 public enum StageTypes {
-//	Side2DStageType1(() -> {
-//		return new Side2DStageType1();
-//	}), //
-	TestStageEngine(() -> {
-		return new TestStageEngine();
+	Side2DStageType1(() -> {//TODO
+		return null;
 	}), //
+
 	;
 
 	public final Supplier<IStageEngine> value;

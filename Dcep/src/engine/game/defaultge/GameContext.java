@@ -4,19 +4,22 @@ import engine.game.defaultge.StageTree.IStageTree;
 import engine.game.defaultge.StageTree.StaticStageTree;
 import engine.game.defaultge.level.IStageEngine;
 import engine.input.IInputEngine;
-import engine.render.PanelAdapter;
+import engine.render.engine2d.Basic2DEngine;
 import engine.save.ISaveEngine;
+import main.EventCore;
 
 public class GameContext {
 
 	// contexte pour les stages
-	protected PanelAdapter adapter;
+	protected Basic2DEngine renderE;
 	protected IInputEngine inputE;
 	protected ISaveEngine saveE;
 	protected DefaultGameEngine gameE;
+	
+	public EventCore EventE =new EventCore();
 
 	// niveau actuel
-	protected IStageEngine curstage;
+	public IStageEngine curstage;
 
 	// arbre des niveaux
 	protected IStageTree tree = new StaticStageTree(this); // TODO
@@ -27,19 +30,16 @@ public class GameContext {
 	// "feuille personnage" du joueur
 	protected PlayerSoul playerstats = new PlayerSoul(); // TODO;
 
-	// autre
-	// protected IRenderEngine DefaultRenderEngine;
-
-	public GameContext(PanelAdapter nadapter, IInputEngine ninputE, ISaveEngine nsaveE, DefaultGameEngine ngameE) {
-		this.adapter = nadapter;
+	public GameContext(Basic2DEngine nrenderE, IInputEngine ninputE, ISaveEngine nsaveE, DefaultGameEngine ngameE) {
+		this.renderE = nrenderE;
 		this.inputE = ninputE;
 		this.saveE = nsaveE;
 		this.gameE = ngameE;
 
 	}
 
-	public PanelAdapter getAdapter() {
-		return adapter;
+	public Basic2DEngine getRenderE() {
+		return renderE;
 	}
 
 	public IInputEngine getInputE() {

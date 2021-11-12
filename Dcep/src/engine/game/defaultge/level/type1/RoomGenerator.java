@@ -21,23 +21,12 @@ public final class RoomGenerator extends Room {
 	}
 
 	public static void genRoom(Room r, ArrayList<RoomState> pool, DoorType[] doors) {
-		//ArrayList<StillBox> nroom = new ArrayList<>();
-		ArrayList<RoomState> rooms = pool;// RoomPool.pool.get(doors[0], doors[1], doors[2], doors[3]);
+		ArrayList<RoomState> rooms = pool;
 		if (rooms.size() == 0) {
 			throw new RuntimeException("pool vide");
 		}
 		Random rand = new Random(System.currentTimeMillis());
 		RoomState roomstate = rooms.get(rand.nextInt(rooms.size()));
-//		for (int[] prebox : roomstate.getBoxes()) {
-//			StillBox box = new StillBox(prebox[0], prebox[1], prebox[2], prebox[3], true);
-//			nroom.add(box);
-//			// int width, height;
-//			// width = box.getX2() - box.getX();
-//			// height = box.getY2() - box.getY();
-//			// Rectangle rec = new Rectangle(box.getX(), box.getY(), width, height,
-//			// Color.black);
-//			// r.scene.addRenderable(rec, DrawLayer.Room_Walls);
-//		}
 
 		r.doors = roomstate.getDoors();
 		for (RoomState.Door door : roomstate.getDoors().values()) {
@@ -67,12 +56,9 @@ public final class RoomGenerator extends Room {
 			}
 		}
 		r.state = roomstate;
-		r.walls=roomstate.walls.get(69);
-		for(Entry<Cardinal,ArrayList<ISegment>> entry:r.walls.entrySet()) {
+		r.walls = roomstate.walls.get(69);
+		for (Entry<Cardinal, ArrayList<ISegment>> entry : r.walls.entrySet()) {
 			entry.getValue().addAll(roomstate.walls.get(68).get(entry.getKey()));
 		}
-		//r.physic.getBoxes().addAll(nroom);
-		// r.physic.getWalls().addAll(nroom);
-
 	}
 }

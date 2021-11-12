@@ -8,14 +8,17 @@ import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import engine.physic.basic2Dvectorial.pathfinding.Tile;
+import engine.physic.basic2Dvectorial.pathfinding.format.Tile;
+import engine.physic.basic2Dvectorial.pathfindingV2.ResizedNavigationMesh;
 import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.renderable.I2DRenderable;
 import engine.render.engine2d.renderable.StillImage;
 import engine.save.room.type1.WallSlice;
 import my.util.ImageCache;
+import my.util.Log;
 import my.util.MyConfigParser;
 import my.util.MyConfigParser.ConfigCollection;
+import my.util.geometry.IRectangle;
 
 public final class RoomVisualGenerator extends Room {
 	private RoomVisualGenerator() {
@@ -93,8 +96,9 @@ public final class RoomVisualGenerator extends Room {
 		}
 
 		room.visuals.add(new RoomVisual(DrawLayer.Room_Walls, new StillImage(wallcv.img, 0, 0)));
-		//room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, new StillImage(shadcv.img, 0, 0)));
-		
+		// room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, new
+		// StillImage(shadcv.img, 0, 0)));
+
 		/////////////////////////////////////////////////////////
 		CanvasImage navtestcv = new CanvasImage(Room.rosizex, Room.rosizey);
 		navtestcv.g.setComposite(AlphaComposite.SrcOver.derive(0.3f));
@@ -110,6 +114,31 @@ public final class RoomVisualGenerator extends Room {
 		}
 
 		room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, new StillImage(navtestcv.img, 0, 0)));
+
+		/////////////////////////////////////////////////////////
+		ResizedNavigationMesh test = room.pathfinder.getCache()
+				.getFittingNavMesh(new IRectangle.Rectangle(0, 0, 20, 17));
+
+		navtestcv = new CanvasImage(Room.rosizex, Room.rosizey);
+		navtestcv.g.setComposite(AlphaComposite.SrcOver.derive(0.3f));
+
+		color = 0x8000F000;
+		for (Tile tile : test.getTiles()) {
+			if(tile.x2 - tile.x<0||tile.y2 - tile.y<0) {
+				Log.log("roomvisgen", "tile negative waaa");
+			}
+			Log.log("rvisgen", "nbs:"+tile.neighbors.size());
+			
+			color += 666;
+			navtestcv.g.setColor(new Color(color));
+			Rectangle tilre = new Rectangle(tile.x, tile.y, tile.x2 - tile.x, tile.y2 - tile.y);
+			navtestcv.g.fill(tilre);
+			navtestcv.g.setColor(new Color(0x00FFFFFF));
+			navtestcv.g.draw(tilre);
+		}
+
+		room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, new StillImage(navtestcv.img, 0, 0)));
+
 	}
 
 	public static class RoomVisual {

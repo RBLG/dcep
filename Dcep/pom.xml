@@ -37,11 +37,8 @@
 			<artifactId>Swingue</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>LoopCore</groupId>
-			<artifactId>LoopCore</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
+		<!-- <dependency> <groupId>LoopCore</groupId> <artifactId>LoopCore</artifactId> 
+			<version>0.0.1-SNAPSHOT</version> </dependency> -->
 		<dependency>
 			<groupId>RhumeCore</groupId>
 			<artifactId>RhumeCore</artifactId>

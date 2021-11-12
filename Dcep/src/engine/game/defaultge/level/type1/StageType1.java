@@ -12,16 +12,14 @@ import engine.loop.ILoopable;
 import engine.loop.TimedAction;
 import engine.misc.util2d.position.IMotionModifier;
 import engine.misc.util2d.position.PrecisionModifier;
-import engine.render.engine2d.Basic2DEngine;
 import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.Scene;
-import engine.render.misc.DcepJFrame;
 import my.util.Cardinal;
 import my.util.EnumMapList;
 import my.util.Keys;
 import my.util.Log;
 
-public class StageType1 extends StageEngine<Basic2DEngine> {
+public class StageType1 extends StageEngine {
 
 	protected Room[][] floor;
 	protected Point current = new Point(StageGenerator.fcentx, StageGenerator.fcenty);
@@ -54,9 +52,9 @@ public class StageType1 extends StageEngine<Basic2DEngine> {
 	}
 
 	public StageType1(GameContext gcontext) {
-		super(new Basic2DEngine(DcepJFrame.staticadapter));
-		
-		this.scontext = new StageContext(gcontext,this);
+		super();
+
+		this.scontext = new StageContext(gcontext, this);
 		this.floor = StageGenerator.genFloor(this);
 		this.player = new PlayerEntityV3(scontext);
 		this.todos.add(Doing.inroom, this::goInRoom);
@@ -72,7 +70,7 @@ public class StageType1 extends StageEngine<Basic2DEngine> {
 
 	@Override
 	public void start(DefaultGameEngine ge) {
-		this.ren.setScene(this.scene);
+		ge.gcontext.getRenderE().setScene(this.scene);
 		this.scene.setVisible(true);
 		this.setCamOnRoom(this.current.x, this.current.y);
 
@@ -96,46 +94,29 @@ public class StageType1 extends StageEngine<Basic2DEngine> {
 		this.current.y += my;
 		post = this.getCurrent();
 		// Log.log(this, "tiles:"+post.state.navmesh.size());
-		// int npx = mx * borderx, npy = my * bordery;
-		// this.player.setGuided(true);
-		// this.player.doGuidedMove(200, npx, npy);
 		this.moveCamByOffset(mx, my, 600);
 		if (this.getCurrent() == null) {
 			Log.log(this, "a mangé un mur en:" + this.current.x + "/" + this.current.y + "\n");
 			throw new RuntimeException("tentative d'aller dans une salle qui est un mur");
 		}
 		//////////////// ENTRE L'ENTRE ET SORTIE/////////
-		actions.add(new TimedAction(300, (long time) -> {
+		actions.add(new TimedAction(9, (long time) -> { // 300ms
 			pre.update(time);
 			pre.playerLeave(this.player);
 			post.playerEnter(dir, this.player);
 			post.update(time);
-//			int nx = player.getHitbox().getX(), ny = player.getHitbox().getY();
-//			
-			// nx = dir.toXMultiplier();
-			// ny = dir.toYMultiplier();
-//			player.setPos(nx, ny);
 
-			// this.player.doGuidedMove(200, npx, npy);
 		}));
 
 		/////////////// FIN////////////////////
-		actions.add(new TimedAction(650, (long time) -> {
+		actions.add(new TimedAction(20, (long time) -> { // était a 650ms
 			this.doing = Doing.inroom;
-			// this.player.setGuided(false);
 		}));
 		//////////////////////////////////////
 
 		// this.todos.add(Doing.betweenroom, pre::go);
 		// this.todos.add(Doing.betweenroom, post::go);
 		this.todos.get(Doing.betweenroom).addAll(actions);
-	}
-
-	@Override
-	public void go(long time) {
-		for (ILoopable todo : this.todos.get(this.doing)) {
-			todo.go(time);
-		}
 	}
 
 	public void goInRoom(long time) {
@@ -191,6 +172,14 @@ public class StageType1 extends StageEngine<Basic2DEngine> {
 		int pmy = -y * StageGenerator.cycley;
 		PrecisionModifier nmod = new PrecisionModifier(time, now, pmx, pmy);
 		this.scene.getPos().setModifier(nmod);
+	}
+
+	@Override
+	public void run2(long time) {
+		// TODO passer de loopable a event
+		for (ILoopable todo : this.todos.get(this.doing)) {
+			todo.go(time);
+		}
 	}
 
 }

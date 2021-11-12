@@ -52,7 +52,10 @@ public class Room {
 		this.ews = new EntityWackSystem();
 		this.scene = new Scene(offsetx, offsety);
 
+		// TODO rework pour que les generators ne modifie pas directement Room, c'est
+		// pas lisible
 		RoomGenerator.genRoom(this, pool, ndoors);
+		pathfinder = new PathFinder(state.navmesh);
 		RoomVisualGenerator.genVisual(this);
 
 		this.ews.add(new CollisionESS(walls));
@@ -61,13 +64,11 @@ public class Room {
 		EntitySubscriber<IHasInteractables> interactables = new EntitySubscriber<>(IHasInteractables.class);
 		this.ews.add(interactables);
 		this.ews.add(new InteractionESS(interactables));
-		
-		
-		
+
 		// a la fin de l'instantiation des ess (au cas ou j'ai envie d'en ajouter plus)
 		this.ews.add(this.interactables);
 
-		pathfinder = new PathFinder(state.navmesh);
+		
 
 		for (RoomVisual vis : visuals) {
 			this.scene.add(vis.rd, vis.lay);

@@ -8,7 +8,7 @@ import java.util.HashMap;
 import engine.game.defaultge.level.type1.Room;
 import engine.game.defaultge.level.type1.RoomPool.DoorType;
 import engine.physic.basic2Dvectorial.ISegment;
-import engine.physic.basic2Dvectorial.pathfinding.Tile;
+import engine.physic.basic2Dvectorial.pathfinding.format.Tile;
 import my.util.Cardinal;
 import my.util.geometry.IPoint;
 import my.util.geometry.IPoint.Point;

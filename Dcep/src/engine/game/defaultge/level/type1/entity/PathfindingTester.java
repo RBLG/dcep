@@ -28,14 +28,14 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 	protected Room proom;
 	protected HitBoxBasedModifier mod;
 	protected StageType1 stage;
-	protected Rectangle visual= new Rectangle(0, 0, 20, 20, Color.YELLOW);
+	protected Rectangle visual = new Rectangle(0, 0, 20, 17, Color.YELLOW);
 	protected Rectangle goal = new Rectangle(0, 0, 3, 3, Color.red);
-	protected Rectangle nextonpath = new Rectangle(0, 0, 20, 20, new Color(255, 100, 0, 170));
+	protected Rectangle nextonpath = new Rectangle(0, 0, 20, 17, new Color(255, 100, 0, 170));
 
 	public PathfindingTester(StageType1 nstage) {
 
 		stage = nstage;
-		hitbox = new MovingBox(0, 0, 20, 20, this, this, this);
+		hitbox = new MovingBox(0, 0, 20, 17, this, this, this);
 		mod = new HitBoxBasedModifier(this.hitbox, new IPoint.Point(0, 0), 0);
 		this.visual.getPos().setModifier(mod);
 
@@ -43,31 +43,40 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 	}
 
 	protected Path path;
+	protected boolean done = false;
 
 	@Override
 	public MotionVector getNextMotionVector(MovingBox box) {
+		if (done) {
+			return new MotionVector(0, 0);
+		}
 		this.think();
 		// Log.log(this, "path:" + path);
 		if (path != null) {
 			path.checkStuckness(this.hitbox.getXY());
-			path.MoveToNextStepIfDone(this.hitbox);
+			path.MoveToNextStepIfDone();
+			if (path.abort) {
+				this.visual.setColor(Color.BLACK);
+				this.done = true;
+				return new MotionVector(0, 0);
+			}
 
-			IVector unlimited = path.getCurrentVector(this.hitbox);
+			IVector unlimited = path.getCurrentVector();
 			this.nextonpath.getPos().getPos().move(this.hitbox.getX(), this.hitbox.getY());
 			this.nextonpath.getPos().getPos().translate(unlimited.getX(), unlimited.getY());
-			IVector vec = path.getShortTermVector(this.hitbox, 7);
+			IVector vec = path.getShortTermVector(7);
 			return new MotionVector(vec.getX(), vec.getY());
 		}
 		return new MotionVector(0, 0);
 	}
 
 	public void think() {
-		if (path == null || path.isDone(this.hitbox)) {
+		if (path == null || path.isDone()) {
 			if (this.proom != null) {
 				PathFinder pf = this.proom.getPathfinder();
 				IPoint next = pf.getRandomPoint(this.hitbox);
 				this.goal.getPos().setPos(new java.awt.Point(next.getX(), next.getY()));
-				path = pf.getPathFromTo(this.hitbox.getCenter(), next, this.hitbox);
+				path = pf.getPathFromTo(this.hitbox.getXY(), next, this.hitbox);
 			}
 		}
 	}

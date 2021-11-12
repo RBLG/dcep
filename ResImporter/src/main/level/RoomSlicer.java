@@ -10,9 +10,9 @@ import engine.game.defaultge.level.type1.Room;
 import engine.physic.basic2Dvectorial.HorizontalSegment;
 import engine.physic.basic2Dvectorial.ISegment;
 import engine.physic.basic2Dvectorial.VerticalSegment;
-import engine.physic.basic2Dvectorial.pathfinding.Tile;
-import engine.physic.basic2Dvectorial.pathfinding.Tile.Junction;
-import engine.physic.basic2Dvectorial.pathfinding.Tile.Neighbor;
+import engine.physic.basic2Dvectorial.pathfinding.format.Junction;
+import engine.physic.basic2Dvectorial.pathfinding.format.Neighbor;
+import engine.physic.basic2Dvectorial.pathfinding.format.Tile;
 import engine.save.room.type1.WallSlice;
 import main.level.SlicerMiddleClasses.*;
 import my.util.Cardinal;
@@ -323,17 +323,17 @@ public class RoomSlicer {
 			if (tries < 100) {
 				return true;
 			}
-			if (t1.getXX().isContaining(t2.getXX()) && //
+			if (t1.getXX().isLooselyContaining(t2.getXX()) && //
 					(t2.getYY().isOverlappingAndBefore(t1.getYY()) || t2.getYY().isOverlappingAndAfter(t1.getYY()))) {
 				return false;
-			} else if (t1.getYY().isContaining(t2.getYY()) && //
+			} else if (t1.getYY().isLooselyContaining(t2.getYY()) && //
 					(t2.getXX().isOverlappingAndBefore(t1.getXX()) || t2.getXX().isOverlappingAndAfter(t1.getXX()))) {
 				return false;
 			}
 		}
 
 		// si aligné en x
-		if (t2.getXX().isContaining(t1.getXX())) {
+		if (t2.getXX().isLooselyContaining(t1.getXX())) {
 			// si y est hors du rectangle et y2 est dedans
 			if (t1.getYY().isOverlappingAndBefore(t2.getYY())) {
 				t1.y2 = t2.y;
@@ -346,7 +346,7 @@ public class RoomSlicer {
 			return false;
 		}
 		// si aligné en y
-		if (t2.getYY().isContaining(t1.getYY())) {
+		if (t2.getYY().isLooselyContaining(t1.getYY())) {
 			// si x est hors du rectangle et x2 est dedans
 			if (t1.getXX().isOverlappingAndBefore(t2.getXX())) {
 				t1.x2 = t2.x;
