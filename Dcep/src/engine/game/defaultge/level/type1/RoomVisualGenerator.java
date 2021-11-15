@@ -99,45 +99,41 @@ public final class RoomVisualGenerator extends Room {
 		// room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, new
 		// StillImage(shadcv.img, 0, 0)));
 
-		/////////////////////////////////////////////////////////
-		CanvasImage navtestcv = new CanvasImage(Room.rosizex, Room.rosizey);
-		navtestcv.g.setComposite(AlphaComposite.SrcOver.derive(0.3f));
-
-		int color = 0x8000F000;
-		for (Tile tile : room.state.navmesh) {
-			color += 666;
-			navtestcv.g.setColor(new Color(color));
-			Rectangle tilre = new Rectangle(tile.x, tile.y, tile.x2 - tile.x, tile.y2 - tile.y);
-			navtestcv.g.fill(tilre);
-			navtestcv.g.setColor(new Color(0x00FFFFFF));
-			navtestcv.g.draw(tilre);
-		}
-
-		room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, new StillImage(navtestcv.img, 0, 0)));
-
-		/////////////////////////////////////////////////////////
-		ResizedNavigationMesh test = room.pathfinder.getCache()
-				.getFittingNavMesh(new IRectangle.Rectangle(0, 0, 20, 17));
-
-		navtestcv = new CanvasImage(Room.rosizex, Room.rosizey);
-		navtestcv.g.setComposite(AlphaComposite.SrcOver.derive(0.3f));
-
-		color = 0x8000F000;
-		for (Tile tile : test.getTiles()) {
-			if(tile.x2 - tile.x<0||tile.y2 - tile.y<0) {
-				Log.log("roomvisgen", "tile negative waaa");
+		if (Boolean.FALSE) {//TODO trud de test, a enlever
+			/////////////////////////////////////////////////////////
+			CanvasImage navtestcv = new CanvasImage(Room.rosizex, Room.rosizey);
+			navtestcv.g.setComposite(AlphaComposite.SrcOver.derive(0.3f));
+			int color = 0x8000F000;
+			for (Tile tile : room.state.navmesh) {
+				color += 666;
+				navtestcv.g.setColor(new Color(color));
+				Rectangle tilre = new Rectangle(tile.x, tile.y, tile.x2 - tile.x, tile.y2 - tile.y);
+				navtestcv.g.fill(tilre);
+				navtestcv.g.setColor(new Color(0x00FFFFFF));
+				navtestcv.g.draw(tilre);
 			}
-			Log.log("rvisgen", "nbs:"+tile.neighbors.size());
-			
-			color += 666;
-			navtestcv.g.setColor(new Color(color));
-			Rectangle tilre = new Rectangle(tile.x, tile.y, tile.x2 - tile.x, tile.y2 - tile.y);
-			navtestcv.g.fill(tilre);
-			navtestcv.g.setColor(new Color(0x00FFFFFF));
-			navtestcv.g.draw(tilre);
-		}
+			room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, new StillImage(navtestcv.img, 0, 0)));
+			/////////////////////////////////////////////////////////
+			ResizedNavigationMesh test = room.pathfinder.getCache()
+					.getFittingNavMesh(new IRectangle.Rectangle(0, 0, 20, 17));
+			navtestcv = new CanvasImage(Room.rosizex, Room.rosizey);
+			navtestcv.g.setComposite(AlphaComposite.SrcOver.derive(0.3f));
+			color = 0x8000F000;
+			for (Tile tile : test.getTiles()) {
+				if (tile.x2 - tile.x < 0 || tile.y2 - tile.y < 0) {
+					Log.log("roomvisgen", "tile negative waaa");
+				}
+				Log.log("rvisgen", "nbs:" + tile.neighbors.size());
 
-		room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, new StillImage(navtestcv.img, 0, 0)));
+				color += 666;
+				navtestcv.g.setColor(new Color(color));
+				Rectangle tilre = new Rectangle(tile.x, tile.y, tile.x2 - tile.x, tile.y2 - tile.y);
+				navtestcv.g.fill(tilre);
+				navtestcv.g.setColor(new Color(0x00FFFFFF));
+				navtestcv.g.draw(tilre);
+			}
+			room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, new StillImage(navtestcv.img, 0, 0)));
+		}
 
 	}
 

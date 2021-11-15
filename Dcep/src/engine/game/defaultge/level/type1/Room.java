@@ -1,5 +1,6 @@
 package engine.game.defaultge.level.type1;
 
+import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.EnumMap;
 
@@ -19,6 +20,7 @@ import engine.physic.basic2Dvectorial.pathfinding.PathFinder;
 import engine.render.engine2d.Basic2DSub;
 import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.Scene;
+import engine.render.engine2d.renderable.I2DRenderer;
 import engine.save.room.type1.RoomState;
 import engine.save.room.type1.Side;
 import engine.save.room.type1.RoomState.Door;
@@ -124,6 +126,11 @@ public class Room {
 
 	public PathFinder getPathfinder() {
 		return pathfinder;
+	}
+
+	public void render(I2DRenderer r, Graphics g, long time, double scx, double scy) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -1,21 +1,20 @@
 package engine.game.defaultge.level.type1;
 
 import java.awt.Point;
-import java.util.ArrayList;
 import engine.game.defaultge.DefaultGameEngine;
 import engine.game.defaultge.GameContext;
 import engine.game.defaultge.level.IStageEngine;
 import engine.game.defaultge.level.StageEngine;
 import engine.game.defaultge.level.type1.entity.PathfindingTester;
 import engine.game.defaultge.level.type1.entity.PlayerEntityV3;
-import engine.loop.ILoopable;
-import engine.loop.TimedAction;
 import engine.misc.util2d.position.IMotionModifier;
 import engine.misc.util2d.position.PrecisionModifier;
 import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.Scene;
+import engine.state.prototype2.State;
+import engine.state.prototype2.StateCore;
+import main.events.StepEvent;
 import my.util.Cardinal;
-import my.util.EnumMapList;
 import my.util.Keys;
 import my.util.Log;
 
@@ -24,32 +23,18 @@ public class StageType1 extends StageEngine {
 	protected Room[][] floor;
 	protected Point current = new Point(StageGenerator.fcentx, StageGenerator.fcenty);
 	protected PlayerEntityV3 player;
-	// protected IStageTree tree;
-	// protected PlayerSoul plrstats;
-	protected StageMap map = new StageMap();
+	public StageMap map = new StageMap();
 
-	protected StageContext scontext;
+	public StageContext scontext;
 
-	protected Scene scene = new Scene();
+	public Scene topscene = new Scene();
+	public Scene scene = new Scene();
 
-	/***
-	 * le type de gameplay en cours
-	 */
-	protected Doing doing = Doing.inroom;
-	/***
-	 * les actions a faire en fonction du type de gameplay
-	 */
-	protected EnumMapList<Doing, ILoopable> todos = new EnumMapList<>(Doing.class);
+	public StateCore guifsm = new StateCore();
 
-	/***
-	 * types de "gameplay" possibles
-	 * 
-	 * @author RobinL
-	 *
-	 */
-	public static enum Doing {
-		inroom, betweenroom, indialogue, incinematic, inmap, inhack;
-	}
+	// public State e;
+
+	// public State e;
 
 	public StageType1(GameContext gcontext) {
 		super();
@@ -57,10 +42,43 @@ public class StageType1 extends StageEngine {
 		this.scontext = new StageContext(gcontext, this);
 		this.floor = StageGenerator.genFloor(this);
 		this.player = new PlayerEntityV3(scontext);
-		this.todos.add(Doing.inroom, this::goInRoom);
 
-		this.map.img.setVisible(false);
-		this.scene.add(this.map.img, DrawLayer.Map);
+		guifsm.add(dungeoncrawling);
+	}
+
+	public State dungeoncrawling = new State((time) -> {
+		this.getCurrent().update(time);
+		scontext.getInputE().ifPressed(Keys.tab.value, () -> {
+			this.openMap();
+		});
+		this.addTester();
+	}, (r, g, time, scx, scy) -> {
+		this.scene.render(r, g, time, scx, scy);
+	});
+	public State mapmenu = new State((time) -> {
+		scontext.getInputE().ifPressed(Keys.tab.value, () -> {
+			closeMap();
+		});
+	}, (r, g, time, scx, scy) -> {
+		this.scene.render(r, g, time, scx, scy);
+		this.map.img.render(r, g, time, scx, scy);
+	});
+	public State hackmenu;
+	public State pausemenu;
+	public State betweenroom = new State(null, (r, g, time, scx, scy) -> {
+		this.scene.render(r, g, time, scx, scy);
+	});
+
+	// TODO trouver une alternative, ça polue la
+	public void closeMap() {
+		guifsm.removeFrom(mapmenu);
+	}
+
+	public void openMap() {
+		this.guifsm.add(mapmenu);// TODO fix la map
+		this.map.img.getPos().getPos().x = this.current.x * StageGenerator.cyclex + 30;
+		this.map.img.getPos().getPos().y = this.current.y * StageGenerator.cycley + 30;
+		this.map.img.setVisible(true);
 	}
 
 	@Override
@@ -70,7 +88,9 @@ public class StageType1 extends StageEngine {
 
 	@Override
 	public void start(DefaultGameEngine ge) {
-		ge.gcontext.getRenderE().setScene(this.scene);
+		ge.gcontext.getRenderE().setScene(topscene);
+		topscene.add(this.guifsm, DrawLayer.Room_Entities);
+		// ge.gcontext.getRenderE().setScene(this.scene);
 		this.scene.setVisible(true);
 		this.setCamOnRoom(this.current.x, this.current.y);
 
@@ -79,80 +99,37 @@ public class StageType1 extends StageEngine {
 	}
 
 	public void moveRoom(Cardinal dir) {
-		ArrayList<TimedAction> actions = new ArrayList<>();
-		this.todos.get(Doing.betweenroom).clear();
-
 		/////////////////////////// RN////////////
 		Room pre, post;
 		pre = this.getCurrent();
-		this.doing = Doing.betweenroom;
-		int mx = 0, my = 0;
-		mx = dir.toXMultiplier();
-		my = dir.toYMultiplier();
-
+		int mx = dir.toXMultiplier();
+		int my = dir.toYMultiplier();
+		if (this.floor[current.x + mx][current.y + my] == null) {
+			Log.log(this, "mur mangé");
+			return;
+		}
+		this.guifsm.add(betweenroom);
 		this.current.x += mx;
 		this.current.y += my;
+
 		post = this.getCurrent();
-		// Log.log(this, "tiles:"+post.state.navmesh.size());
 		this.moveCamByOffset(mx, my, 600);
-		if (this.getCurrent() == null) {
-			Log.log(this, "a mangé un mur en:" + this.current.x + "/" + this.current.y + "\n");
-			throw new RuntimeException("tentative d'aller dans une salle qui est un mur");
-		}
+
 		//////////////// ENTRE L'ENTRE ET SORTIE/////////
-		actions.add(new TimedAction(9, (long time) -> { // 300ms
+		StepEvent.start().then(GameTick.fromMillis(300), (long time) -> { // était à 300ms
 			pre.update(time);
 			pre.playerLeave(this.player);
 			post.playerEnter(dir, this.player);
 			post.update(time);
 
-		}));
-
-		/////////////// FIN////////////////////
-		actions.add(new TimedAction(20, (long time) -> { // était a 650ms
-			this.doing = Doing.inroom;
-		}));
-		//////////////////////////////////////
-
-		// this.todos.add(Doing.betweenroom, pre::go);
-		// this.todos.add(Doing.betweenroom, post::go);
-		this.todos.get(Doing.betweenroom).addAll(actions);
-	}
-
-	public void goInRoom(long time) {
-		this.getCurrent().update(time);
-		// this.player.think();
-		/////////////////////////////////////////////////////////////
-		if (scontext.getInputE().isPressed(Keys.space.value)) {
-			PathfindingTester pft = new PathfindingTester(this);
-			this.getCurrent().enter(Cardinal.north, pft);
-			Log.log(this, "new tester");
-		}
-		/////////////////////////////////////////////////////////////
-		if (scontext.getInputE().isPressed(Keys.tab.value)) {
-			this.openMap();
-		}
-	}
-
-	public void openMap() {
-		this.doing = Doing.inmap;
-		this.map.img.getPos().getPos().x = this.current.x * StageGenerator.cyclex + 30;
-		this.map.img.getPos().getPos().y = this.current.y * StageGenerator.cycley + 30;
-		this.map.img.setVisible(true);
-		this.todos.add(Doing.inmap, (time) -> {
-			if (!scontext.getInputE().isActive(Keys.tab.value)) {
-				this.doing = Doing.inroom;
-				this.map.img.setVisible(false);
-			}
-		});
+		}).then(GameTick.fromMillis(350), (long time) -> { // était a 650ms
+			/////////////// FIN////////////////////
+			this.guifsm.removeFrom(betweenroom);
+		}).endAndUse((ev) -> scontext.gcontext.EventE.chaotic.add(ev));
 	}
 
 	public Room getCurrent() {
 		return this.floor[current.x][current.y];
-	}
-
-	public Scene getCurrentScene() {
-		return this.getCurrent().getScene();
 	}
 
 	public void setCamOnRoom(int x, int y) {
@@ -176,10 +153,14 @@ public class StageType1 extends StageEngine {
 
 	@Override
 	public void run2(long time) {
-		// TODO passer de loopable a event
-		for (ILoopable todo : this.todos.get(this.doing)) {
-			todo.go(time);
-		}
+		guifsm.run(time);
 	}
 
+	public void addTester() {
+		scontext.getInputE().ifPressed(Keys.space.value, () -> {
+			PathfindingTester pft = new PathfindingTester(this);
+			this.getCurrent().enter(Cardinal.north, pft);
+			Log.log(this, "new tester");
+		});
+	}
 }

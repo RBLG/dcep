@@ -66,6 +66,7 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 	@Override
 	public void enter(Room room,Cardinal dir) {
 		Point newco = room.state.getDoorFront(dir, this.hitbox.getWH());
+		this.hitbox.applyMotion();
 		this.hitbox.setX(newco.getX());
 		this.hitbox.setY(newco.getY());
 		//TODO deplacer pour re generaliser la gestion du point d'entree
