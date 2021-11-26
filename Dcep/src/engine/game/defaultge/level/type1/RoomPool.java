@@ -24,7 +24,7 @@ public class RoomPool {
 	public static final int tpsize = DoorType.values().length;
 	public static final RoomPool pool = new RoomPool(); // TODO pourrait ne pas etre un singleton
 
-	protected RList[][][][] sortedpool;
+	protected RList[][][][] sortedpool;//TODO remplacer par une enum de enum de enum (pareil mais mieux)
 	protected EnumMap<RoomType, RList> specialpool;
 
 	private RoomPool() {

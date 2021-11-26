@@ -103,10 +103,10 @@ public final class StageGenerator extends StageType1 {
 					ArrayList<RoomState> pool;
 					if (itx == spawnx && ity == spawny) { // TODO si spawn
 						pool = RoomPool.pool.get(n, DoorType.any, e, w);
-						rom = new Room(itx * cyclex, ity * cycley, pool, dors);
+						rom = new Room(stage, itx * cyclex, ity * cycley, pool, dors);
 					} else {
 						pool = RoomPool.pool.get(n, s, e, w);
-						rom = new Room(itx * cyclex, ity * cycley, pool, dors);
+						rom = new Room(stage, itx * cyclex, ity * cycley, pool, dors);
 					}
 
 					nfloor[itx][ity] = rom;

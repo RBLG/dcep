@@ -22,7 +22,7 @@ import my.util.geometry.IRectangle;
 
 public final class RoomVisualGenerator extends Room {
 	private RoomVisualGenerator() {
-		super(0, 0, null, null);
+		super(null,0, 0, null, null);
 	}
 
 	public static int coloor = 0;

@@ -7,7 +7,6 @@ import engine.entityfw.components.IHasCollidable;
 import engine.entityfw.components.IHasVisuals;
 import engine.game.defaultge.level.type1.Room;
 import engine.game.defaultge.level.type1.StageType1;
-import engine.physic.basic2Dvectorial.MotionVector;
 import engine.physic.basic2Dvectorial.MovingBox;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionComputedListener;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionListener;
@@ -20,6 +19,7 @@ import engine.render.misc.HitBoxBasedModifier;
 import my.util.Cardinal;
 import my.util.geometry.IPoint;
 import my.util.geometry.IVector;
+import my.util.geometry.IVector.Vector;
 
 public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHasCollidable, //
 		IOnCollisionComputedListener, IOnCollisionListener, IMotionProvider {
@@ -46,9 +46,9 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 	protected boolean done = false;
 
 	@Override
-	public MotionVector getNextMotionVector(MovingBox box) {
+	public Vector getNextMotionVector(MovingBox box) {
 		if (done) {
-			return new MotionVector(0, 0);
+			return new Vector(0, 0);
 		}
 		this.think();
 		// Log.log(this, "path:" + path);
@@ -58,16 +58,16 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 			if (path.abort) {
 				this.visual.setColor(Color.BLACK);
 				this.done = true;
-				return new MotionVector(0, 0);
+				return new Vector(0, 0);
 			}
 
 			IVector unlimited = path.getCurrentVector();
 			this.nextonpath.getPos().getPos().move(this.hitbox.getX(), this.hitbox.getY());
 			this.nextonpath.getPos().getPos().translate(unlimited.getX(), unlimited.getY());
 			IVector vec = path.getShortTermVector(7);
-			return new MotionVector(vec.getX(), vec.getY());
+			return new Vector(vec.getX(), vec.getY());
 		}
-		return new MotionVector(0, 0);
+		return new Vector(0, 0);
 	}
 
 	public void think() {
@@ -95,7 +95,7 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 	@Override
 	public void enter(Room room, Cardinal dir) {
 		this.proom = room;
-		IPoint pt = room.getPathfinder().getRandomAccessiblePoint(this.hitbox);
+		IPoint pt = room.getPathfinder().getRandomPoint(this.hitbox);
 		this.hitbox.setX(pt.getX());
 		this.hitbox.setY(pt.getY());
 	}

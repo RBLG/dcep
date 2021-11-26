@@ -78,7 +78,6 @@ public class RoomState implements Serializable {
 		public int pos;
 		public int size;
 		public int index;
-		// public DoorType type;
 
 		public Door(Side nside, int npos, int nsize) {
 			this.side = nside;
@@ -86,6 +85,7 @@ public class RoomState implements Serializable {
 			this.size = nsize;
 		}
 
+		//TODO generaliser (<ENUM> a la place de DoorType + <ENUM> après typecrit)
 		public DoorType getType(ITypeCriterias crit) {
 			return crit.judgeDoorSize(side, size);
 		}

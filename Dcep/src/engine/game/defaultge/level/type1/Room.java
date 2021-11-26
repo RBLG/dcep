@@ -11,6 +11,7 @@ import engine.entityfw.subsystems.VisualESS;
 import engine.game.defaultge.level.type1.RoomPool.DoorType;
 import engine.game.defaultge.level.type1.RoomVisualGenerator.RoomVisual;
 import engine.game.defaultge.level.type1.entity.PlayerEntityV3;
+import engine.game.defaultge.level.type1.entity.WandererTest;
 import engine.game.defaultge.level.type1.interactions.RoomInteractableHaver;
 import engine.game.defaultge.level.type1.entity.IRoomTraverserEntity;
 import engine.physic.basic2DInteractionV3.InteractionESS;
@@ -25,12 +26,15 @@ import engine.save.room.type1.RoomState;
 import engine.save.room.type1.Side;
 import engine.save.room.type1.RoomState.Door;
 import my.util.Cardinal;
+import my.util.geometry.IRectangle;
 
 public class Room {
 	//////////////////////////////////////////////////////////////
 	public final static int rosizey = Basic2DSub.LDymax;
 	public final static int rosizex = Basic2DSub.LDxmax;
 	//////////////////////////////////////////////////////////////
+	public static final int simscale = 1000; //emplacement temporaire
+	
 	protected Scene scene;
 	public RoomState state;
 	public EnumMap<Side, Door> doors;
@@ -50,7 +54,7 @@ public class Room {
 	 * @param offsety
 	 * @param doors
 	 */
-	public Room(int offsetx, int offsety, ArrayList<RoomState> pool, DoorType[] ndoors) {
+	public Room(StageType1 stage, int offsetx, int offsety, ArrayList<RoomState> pool, DoorType[] ndoors) {
 		this.ews = new EntityWackSystem();
 		this.scene = new Scene(offsetx, offsety);
 
@@ -69,8 +73,8 @@ public class Room {
 
 		// a la fin de l'instantiation des ess (au cas ou j'ai envie d'en ajouter plus)
 		this.ews.add(this.interactables);
-
-		
+		this.ews.add(
+				new WandererTest(stage, this, this.pathfinder.getRandomPoint(new IRectangle.Rectangle(0, 0, 20, 17))));
 
 		for (RoomVisual vis : visuals) {
 			this.scene.add(vis.rd, vis.lay);
@@ -130,7 +134,7 @@ public class Room {
 
 	public void render(I2DRenderer r, Graphics g, long time, double scx, double scy) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

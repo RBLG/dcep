@@ -7,6 +7,8 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+
+import engine.game.defaultge.level.type1.Room;
 import engine.physic.basic2Dvectorial.HorizontalSegment;
 import engine.physic.basic2Dvectorial.VerticalSegment;
 import engine.save.room.type1.RoomState;
@@ -42,6 +44,7 @@ public class RoomProcesser {
 			throw new RuntimeException("taille invalide");
 		}
 		ratio = 640 / img.getWidth();
+		//ratio *= Room.simscale;
 
 		// ArrayList<int[]> hitboxes = this.detectWalls(img);
 		EnumMap<Side, Door> doors = this.detectDoors(img);
@@ -51,7 +54,7 @@ public class RoomProcesser {
 		// TODO a voir si OrDefault est une bonne idée ou une exception est mieux
 		RoomType type = RoomType.valueOf(fields.getOrDefault("type", "room"));
 		String visconf = fields.getOrDefault("confvisual", "stages/type1/togen/default/");
-		Log.log(this, "tiles:"+slicer.tiles.toString());
+		Log.log(this, "tiles:" + slicer.tiles.toString());
 		///////////// C'EST ICI /////////////////////////
 		this.room = new RoomState(segs.toSuper(), doors, slicer.tiles, type, slicer.vslices.get(69), visconf);
 		/////////////////////////////////////////////////

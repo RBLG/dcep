@@ -1,5 +1,6 @@
 package engine.game.defaultge.level.type1;
 
+import java.awt.Graphics;
 import java.awt.Point;
 import engine.game.defaultge.DefaultGameEngine;
 import engine.game.defaultge.GameContext;
@@ -7,10 +8,12 @@ import engine.game.defaultge.level.IStageEngine;
 import engine.game.defaultge.level.StageEngine;
 import engine.game.defaultge.level.type1.entity.PathfindingTester;
 import engine.game.defaultge.level.type1.entity.PlayerEntityV3;
+import engine.game.defaultge.level.type1.states.DungeonCrawlingState;
 import engine.misc.util2d.position.IMotionModifier;
 import engine.misc.util2d.position.PrecisionModifier;
-import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.Scene;
+import engine.render.engine2d.renderable.I2DRenderer;
+import engine.render.engine2d.renderable.I2DSimpleRenderable;
 import engine.state.prototype2.State;
 import engine.state.prototype2.StateCore;
 import main.events.StepEvent;
@@ -18,16 +21,16 @@ import my.util.Cardinal;
 import my.util.Keys;
 import my.util.Log;
 
-public class StageType1 extends StageEngine {
+public class StageType1 extends StageEngine implements I2DSimpleRenderable {
 
 	protected Room[][] floor;
-	protected Point current = new Point(StageGenerator.fcentx, StageGenerator.fcenty);
+	public Point current = new Point(StageGenerator.fcentx, StageGenerator.fcenty);
 	protected PlayerEntityV3 player;
 	public StageMap map = new StageMap();
 
 	public StageContext scontext;
 
-	public Scene topscene = new Scene();
+	// public Scene topscene = new Scene();
 	public Scene scene = new Scene();
 
 	public StateCore guifsm = new StateCore();
@@ -43,42 +46,7 @@ public class StageType1 extends StageEngine {
 		this.floor = StageGenerator.genFloor(this);
 		this.player = new PlayerEntityV3(scontext);
 
-		guifsm.add(dungeoncrawling);
-	}
-
-	public State dungeoncrawling = new State((time) -> {
-		this.getCurrent().update(time);
-		scontext.getInputE().ifPressed(Keys.tab.value, () -> {
-			this.openMap();
-		});
-		this.addTester();
-	}, (r, g, time, scx, scy) -> {
-		this.scene.render(r, g, time, scx, scy);
-	});
-	public State mapmenu = new State((time) -> {
-		scontext.getInputE().ifPressed(Keys.tab.value, () -> {
-			closeMap();
-		});
-	}, (r, g, time, scx, scy) -> {
-		this.scene.render(r, g, time, scx, scy);
-		this.map.img.render(r, g, time, scx, scy);
-	});
-	public State hackmenu;
-	public State pausemenu;
-	public State betweenroom = new State(null, (r, g, time, scx, scy) -> {
-		this.scene.render(r, g, time, scx, scy);
-	});
-
-	// TODO trouver une alternative, ça polue la
-	public void closeMap() {
-		guifsm.removeFrom(mapmenu);
-	}
-
-	public void openMap() {
-		this.guifsm.add(mapmenu);// TODO fix la map
-		this.map.img.getPos().getPos().x = this.current.x * StageGenerator.cyclex + 30;
-		this.map.img.getPos().getPos().y = this.current.y * StageGenerator.cycley + 30;
-		this.map.img.setVisible(true);
+		guifsm.add(new DungeonCrawlingState(this));
 	}
 
 	@Override
@@ -88,10 +56,7 @@ public class StageType1 extends StageEngine {
 
 	@Override
 	public void start(DefaultGameEngine ge) {
-		ge.gcontext.getRenderE().setScene(topscene);
-		topscene.add(this.guifsm, DrawLayer.Room_Entities);
-		// ge.gcontext.getRenderE().setScene(this.scene);
-		this.scene.setVisible(true);
+		// this.scene.setVisible(true);
 		this.setCamOnRoom(this.current.x, this.current.y);
 
 		this.getCurrent().playerEnter(Cardinal.north, this.player);
@@ -99,9 +64,11 @@ public class StageType1 extends StageEngine {
 	}
 
 	public void moveRoom(Cardinal dir) {
+		State betweenroom = new State(null, (r, g, time, scx, scy) -> {
+			this.scene.render(r, g, time, scx, scy);
+		});
 		/////////////////////////// RN////////////
-		Room pre, post;
-		pre = this.getCurrent();
+		Room pre = this.getCurrent();
 		int mx = dir.toXMultiplier();
 		int my = dir.toYMultiplier();
 		if (this.floor[current.x + mx][current.y + my] == null) {
@@ -112,16 +79,14 @@ public class StageType1 extends StageEngine {
 		this.current.x += mx;
 		this.current.y += my;
 
-		post = this.getCurrent();
+		Room post = this.getCurrent();
 		this.moveCamByOffset(mx, my, 600);
-
 		//////////////// ENTRE L'ENTRE ET SORTIE/////////
 		StepEvent.start().then(GameTick.fromMillis(300), (long time) -> { // était à 300ms
 			pre.update(time);
 			pre.playerLeave(this.player);
 			post.playerEnter(dir, this.player);
 			post.update(time);
-
 		}).then(GameTick.fromMillis(350), (long time) -> { // était a 650ms
 			/////////////// FIN////////////////////
 			this.guifsm.removeFrom(betweenroom);
@@ -162,5 +127,11 @@ public class StageType1 extends StageEngine {
 			this.getCurrent().enter(Cardinal.north, pft);
 			Log.log(this, "new tester");
 		});
+	}
+
+	@Override
+	public void render(I2DRenderer r, Graphics g, long time, double scx, double scy) {
+		// this.topscene.render(r, g, time, scx, scy);
+		this.guifsm.render(r, g, time, scx, scy);
 	}
 }

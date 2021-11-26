@@ -16,8 +16,8 @@ import my.util.Cardinal;
 
 public final class RoomGenerator extends Room {
 
-	private RoomGenerator(int offsetx, int offsety, ArrayList<RoomState> pool, DoorType[] doors) {
-		super(offsetx, offsety, pool, doors);
+	private RoomGenerator() {
+		super(null, 0, 0, null, null);
 	}
 
 	public static void genRoom(Room r, ArrayList<RoomState> pool, DoorType[] doors) {

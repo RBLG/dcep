@@ -3,51 +3,55 @@ package engine.game.defaultge.level.type1.entity;
 import static my.util.ImageCache.getImages2;
 
 import java.util.EnumMap;
+import java.util.Random;
 import java.util.function.Consumer;
 
+import engine.entityfw.IEntityV3;
 import engine.entityfw.components.IHasCollidable;
-import engine.entityfw.components.IHasInteracters;
 import engine.entityfw.components.IHasVisuals;
+import engine.game.defaultge.level.type1.GameTick;
 import engine.game.defaultge.level.type1.Room;
 import engine.game.defaultge.level.type1.StageContext;
-import engine.game.defaultge.level.type1.interactions.PlayerInteracter;
-import engine.physic.basic2DInteractionV3.IInteracter;
+import engine.game.defaultge.level.type1.StageType1;
 import engine.physic.basic2Dvectorial.MovingBox;
+import engine.physic.basic2Dvectorial.MovingBox.INextMotionProvider;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionComputedListener;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionListener;
 import engine.physic.basic2Dvectorial.motionprovider.BasicV2PlayerInput;
+import engine.physic.basic2Dvectorial.pathfinding.Path;
+import engine.physic.basic2Dvectorial.pathfinding.PathFinder;
 import engine.render.engine2d.renderable.I2DRenderable;
 import engine.render.engine2d.renderable.LoopingAnimation;
 import engine.render.engine2d.renderable.MapGraphicEntity;
 import engine.render.misc.HitBoxBasedModifier;
+import main.events.DelayedEvent;
 import my.util.Cardinal;
 import my.util.Geometry;
 import my.util.geometry.IPoint;
-import my.util.geometry.IPoint.Point;
 import my.util.geometry.IVector;
+import my.util.geometry.IVector.Vector;
 
-public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHasVisuals, IHasInteracters, //
-		IOnCollisionComputedListener, IOnCollisionListener {
-	public static final int visualsizex = 50;
-	public static final int visualsizey = 90;
+public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, //
+		IOnCollisionComputedListener, IOnCollisionListener, INextMotionProvider {
 
 	protected MapGraphicEntity<PlayerVisualState> visual1;
 	protected HitBoxBasedModifier mod;
 	public StageContext scontext;
 	protected BasicV2PlayerInput motprov;
 	protected MovingBox hitbox;
-	protected PlayerInteracter interacter = new PlayerInteracter(this);
+	protected Room room;
 
-	public PlayerEntityV3(StageContext nscontext) {
-		this.scontext = nscontext;
+	public WandererTest(StageType1 stage, Room nroom, IPoint npt) {
+		room = nroom;
+		scontext = stage.scontext;
 
-		this.motprov = new BasicV2PlayerInput(scontext.getInputE());
-		this.hitbox = new MovingBox(0, 0, 20// * Room.simscale
-				, 17// *Room.simscale
-				, this.motprov, this, this);
+		this.hitbox = new MovingBox(npt.getX() // * Room.simscale
+				, npt.getY() // * Room.simscale
+				, 20 // * Room.simscale
+				, 17 // * Room.simscale
+				, this, this, this);
 		this.mod = new HitBoxBasedModifier(this.hitbox, new IPoint.Point(0, 0), 0);
 
-		// TODO a externaliser en fichier de conf
 		EnumMap<PlayerVisualState, I2DRenderable> e = new EnumMap<>(PlayerVisualState.class);
 		e.put(PlayerVisualState.up_move, new LoopingAnimation(getImages2("stages/type1/player_redbox/up_move")));
 		e.put(PlayerVisualState.down_move, new LoopingAnimation(getImages2("stages/type1/player_redbox/down_move")));
@@ -60,21 +64,23 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 				new LoopingAnimation(getImages2("stages/type1/player_redbox/right_stand")));
 		this.visual1 = new MapGraphicEntity<>(new java.awt.Point(0, -23), PlayerVisualState.down_stand, e);
 		this.visual1.getPos().setModifier(mod);
+
 	}
 
 	@Override
-	public void enter(Room room, Cardinal dir) {
-		Point newco = room.state.getDoorFront(dir, this.hitbox.getWH());
-		this.hitbox.applyMotion();
-		this.hitbox.setX(newco.getX());
-		this.hitbox.setY(newco.getY());
-		// TODO deplacer pour re generaliser la gestion du point d'entree
+	public void forEachCollidables(Consumer<MovingBox> task) {
+		task.accept(hitbox);
+
 	}
 
 	@Override
-	public void leave(Room room) {
-		// TODO Auto-generated method stub
+	public void forEachVisuals(Consumer<I2DRenderable> task) {
+		task.accept(visual1);
+	}
 
+	@Override
+	public void onCollision(MovingBox box) {
+		return;
 	}
 
 	protected Cardinal lastdir = Cardinal.south;
@@ -97,28 +103,47 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 		this.visual1.set(PlayerVisualState.concat(mov, this.lastdir));
 	}
 
-	@Override
-	public void onCollision(MovingBox box) {
-		return;
-	}
+	protected Path path;
 
-	public MovingBox getHitbox() {
-		return this.hitbox;
-	}
+	protected INextMotionProvider mpstate = this::onMovingMotionProvider;
 
 	@Override
-	public void forEachInteracters(Consumer<IInteracter> task) {
-		task.accept(interacter);
+	public Vector getNextMotionVector(MovingBox box) {
+		return mpstate.getNextMotionVector(box);
 	}
 
-	@Override
-	public void forEachCollidables(Consumer<MovingBox> task) {
-		task.accept(this.hitbox);
+	public Vector onWaitingMotionProvider(MovingBox box) {
 
+		return new Vector(0, 0);
 	}
 
-	@Override
-	public void forEachVisuals(Consumer<I2DRenderable> task) {
-		task.accept(this.visual1);
+	public Vector onMovingMotionProvider(MovingBox box) {
+		if (path == null) {
+			if (this.room != null) {
+				PathFinder pf = this.room.getPathfinder();
+				path = pf.getPathToRandomPointInWalkRange(this.hitbox, 200 // * Room.simscale
+				);
+			}
+		}
+		if (path != null) {
+			path.checkStuckness(this.hitbox.getXY());
+			path.MoveToNextStepIfDone();
+			if (path.isDone()) {
+				this.mpstate = this::onWaitingMotionProvider;
+				//////////////////////////////////
+				scontext.getGcontext().EventE.chaotic
+						.add(new DelayedEvent(GameTick.fromMillis((new Random()).nextInt(4000)), (time) -> {
+							this.mpstate = this::onMovingMotionProvider;
+						}));
+				/////////////////////////////////////
+				this.path = null;
+				return new Vector(0, 0);
+			}
+			IVector vec = path.getShortTermVector(3 // * Room.simscale
+			);
+			return new Vector(vec.getX(), vec.getY());
+		}
+		return new Vector(0, 0);
 	}
+
 }

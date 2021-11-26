@@ -1,9 +1,11 @@
 package engine.render.misc;
 
+import engine.game.defaultge.level.type1.Room;
 import engine.misc.util2d.position.IMotionModifier;
 import engine.physic.basic2Dvectorial.MotionVector;
 import engine.physic.basic2Dvectorial.MovingBox;
 import my.util.geometry.IPoint;
+import my.util.geometry.IVector.Vector;
 
 public class HitBoxBasedModifier implements IMotionModifier {
 
@@ -15,10 +17,13 @@ public class HitBoxBasedModifier implements IMotionModifier {
 
 	public HitBoxBasedModifier(MovingBox nhitbox, IPoint noffset, long nbeginning) {
 		this.hitbox = nhitbox;
-		this.vec = nhitbox.getVec().clone();
+		this.vec = new MotionVector(nhitbox.getVec().getX(), nhitbox.getVec().getY());
 		this.offset = noffset;
 		this.beginning = nbeginning;
-		this.pos = new IPoint.Point(nhitbox.getX(), nhitbox.getY());
+		this.pos = new IPoint.Point(nhitbox.getX() /// Room.simscale
+				, nhitbox.getY()
+		/// Room.simscale
+		);
 
 	}
 
@@ -29,9 +34,14 @@ public class HitBoxBasedModifier implements IMotionModifier {
 
 	public void resetBeginning() {
 		this.beginning = System.currentTimeMillis();
-		this.vec.set(this.hitbox.getVec());
-		this.pos.setX(this.hitbox.getX());
-		this.pos.setY(this.hitbox.getY());
+		Vector nvec = this.hitbox.getVec();
+		this.vec.set(new MotionVector(nvec.getX() /// Room.simscale//
+				, nvec.getY() /// Room.simscale//
+		));
+		this.pos.setX(this.hitbox.getX() /// Room.simscale
+		);
+		this.pos.setY(this.hitbox.getY() /// Room.simscale
+		);
 	}
 
 	@Override
