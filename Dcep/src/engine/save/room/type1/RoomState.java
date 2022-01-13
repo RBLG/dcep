@@ -10,6 +10,7 @@ import engine.game.defaultge.level.type1.RoomPool.DoorType;
 import engine.physic.basic2Dvectorial.ISegment;
 import engine.physic.basic2Dvectorial.pathfinding.format.Tile;
 import my.util.Cardinal;
+import my.util.Log;
 import my.util.geometry.IPoint;
 import my.util.geometry.IPoint.Point;
 
@@ -54,7 +55,8 @@ public class RoomState implements Serializable {
 			}
 		}
 		if (entrydoor == null) {// ne devrait jamais arriver
-			entrydoor = new RoomState.Door(Side.north, 10, 50);
+			entrydoor = new RoomState.Door(Side.north, 10 * Room.simscale, 50 * Room.simscale);
+			Log.log(this, "entrydoor == null");
 		}
 
 		int nx = 0, ny = 0;
@@ -85,7 +87,7 @@ public class RoomState implements Serializable {
 			this.size = nsize;
 		}
 
-		//TODO generaliser (<ENUM> a la place de DoorType + <ENUM> après typecrit)
+		// TODO generaliser (<ENUM> a la place de DoorType + <ENUM> après typecrit)
 		public DoorType getType(ITypeCriterias crit) {
 			return crit.judgeDoorSize(side, size);
 		}

@@ -56,8 +56,8 @@ public class RoomSlicer {
 					lstopseg = topseg;
 					int height = -999;
 					for (ISegment top : segs.get(Cardinal.south)) {
-						if (top.getX() <= it1 && top.getX2() >= it1) {
-							if (top.getY() > height && top.getY() < base.getY()) {
+						if (top.getX() <= it1 && it1 <= top.getX2()) {
+							if (top.getY() > height && top.getY() <= base.getY()) {
 								height = top.getY();
 								topseg = top;
 							}
@@ -65,7 +65,8 @@ public class RoomSlicer {
 					}
 					if (!lstopseg.equals(topseg)) {
 						if (it1 != base.getX()) {
-							slices.add(new WallSlice(lstopseg, base, lstart, it1 - 1, base.getColor()));
+							slices.add(
+									new WallSlice(lstopseg, base, lstart, it1 - 1, base.getColor()));
 						}
 						lstart = it1;
 					}

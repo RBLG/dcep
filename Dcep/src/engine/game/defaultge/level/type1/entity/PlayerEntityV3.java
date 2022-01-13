@@ -15,10 +15,10 @@ import engine.physic.basic2DInteractionV3.IInteracter;
 import engine.physic.basic2Dvectorial.MovingBox;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionComputedListener;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionListener;
-import engine.physic.basic2Dvectorial.motionprovider.BasicV2PlayerInput;
 import engine.render.engine2d.renderable.I2DRenderable;
 import engine.render.engine2d.renderable.LoopingAnimation;
 import engine.render.engine2d.renderable.MapGraphicEntity;
+import engine.render.misc.BasicV2PlayerInput;
 import engine.render.misc.HitBoxBasedModifier;
 import my.util.Cardinal;
 import my.util.Geometry;
@@ -42,9 +42,7 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 		this.scontext = nscontext;
 
 		this.motprov = new BasicV2PlayerInput(scontext.getInputE());
-		this.hitbox = new MovingBox(0, 0, 20// * Room.simscale
-				, 17// *Room.simscale
-				, this.motprov, this, this);
+		this.hitbox = new MovingBox(0, 0, 20 * Room.simscale, 17 * Room.simscale, this.motprov, this, this);
 		this.mod = new HitBoxBasedModifier(this.hitbox, new IPoint.Point(0, 0), 0);
 
 		// TODO a externaliser en fichier de conf

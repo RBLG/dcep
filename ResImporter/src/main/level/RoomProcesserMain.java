@@ -25,7 +25,7 @@ public class RoomProcesserMain {
 					ArrayList<RoomState> rooms = new ArrayList<RoomState>();
 					///
 					conf.get().forEach((group, fields) -> {// base + fields.get("hitbox")
-						RoomProcesser imp = new RoomProcesser(base, fields);
+						RoomProcesser imp = new RoomProcesser(base,group, fields);
 						// TODO modif pour add les autres champs
 						imp.importRoomImg();
 						rooms.add(imp.get());

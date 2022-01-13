@@ -17,12 +17,12 @@ import engine.physic.basic2Dvectorial.MovingBox;
 import engine.physic.basic2Dvectorial.MovingBox.INextMotionProvider;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionComputedListener;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionListener;
-import engine.physic.basic2Dvectorial.motionprovider.BasicV2PlayerInput;
 import engine.physic.basic2Dvectorial.pathfinding.Path;
 import engine.physic.basic2Dvectorial.pathfinding.PathFinder;
 import engine.render.engine2d.renderable.I2DRenderable;
 import engine.render.engine2d.renderable.LoopingAnimation;
 import engine.render.engine2d.renderable.MapGraphicEntity;
+import engine.render.misc.BasicV2PlayerInput;
 import engine.render.misc.HitBoxBasedModifier;
 import main.events.DelayedEvent;
 import my.util.Cardinal;
@@ -45,11 +45,8 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, //
 		room = nroom;
 		scontext = stage.scontext;
 
-		this.hitbox = new MovingBox(npt.getX() // * Room.simscale
-				, npt.getY() // * Room.simscale
-				, 20 // * Room.simscale
-				, 17 // * Room.simscale
-				, this, this, this);
+		this.hitbox = new MovingBox(npt.getX() * Room.simscale, npt.getY() * Room.simscale, 20 * Room.simscale,
+				17 * Room.simscale, this, this, this);
 		this.mod = new HitBoxBasedModifier(this.hitbox, new IPoint.Point(0, 0), 0);
 
 		EnumMap<PlayerVisualState, I2DRenderable> e = new EnumMap<>(PlayerVisualState.class);
@@ -121,8 +118,7 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, //
 		if (path == null) {
 			if (this.room != null) {
 				PathFinder pf = this.room.getPathfinder();
-				path = pf.getPathToRandomPointInWalkRange(this.hitbox, 200 // * Room.simscale
-				);
+				path = pf.getPathToRandomPointInWalkRange(this.hitbox, 200 * Room.simscale);
 			}
 		}
 		if (path != null) {
@@ -139,8 +135,7 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, //
 				this.path = null;
 				return new Vector(0, 0);
 			}
-			IVector vec = path.getShortTermVector(3 // * Room.simscale
-			);
+			IVector vec = path.getShortTermVector(3 * Room.simscale);
 			return new Vector(vec.getX(), vec.getY());
 		}
 		return new Vector(0, 0);

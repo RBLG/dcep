@@ -33,8 +33,9 @@ public class Room {
 	public final static int rosizey = Basic2DSub.LDymax;
 	public final static int rosizex = Basic2DSub.LDxmax;
 	//////////////////////////////////////////////////////////////
-	public static final int simscale = 1000; //emplacement temporaire
-	
+	public static final int simscale = 2; // emplacement temporaire
+	public static final float invsimscale = 1 / (float) simscale;
+
 	protected Scene scene;
 	public RoomState state;
 	public EnumMap<Side, Door> doors;

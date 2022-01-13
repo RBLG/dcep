@@ -35,7 +35,7 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 	public PathfindingTester(StageType1 nstage) {
 
 		stage = nstage;
-		hitbox = new MovingBox(0, 0, 20, 17, this, this, this);
+		hitbox = new MovingBox(0, 0, 20 * Room.simscale, 17 * Room.simscale, this, this, this);
 		mod = new HitBoxBasedModifier(this.hitbox, new IPoint.Point(0, 0), 0);
 		this.visual.getPos().setModifier(mod);
 
@@ -62,9 +62,11 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 			}
 
 			IVector unlimited = path.getCurrentVector();
-			this.nextonpath.getPos().getPos().move(this.hitbox.getX(), this.hitbox.getY());
-			this.nextonpath.getPos().getPos().translate(unlimited.getX(), unlimited.getY());
-			IVector vec = path.getShortTermVector(7);
+			this.nextonpath.getPos().getPos().move(this.hitbox.getX() / Room.simscale,
+					this.hitbox.getY() / Room.simscale);
+			this.nextonpath.getPos().getPos().translate(unlimited.getX() / Room.simscale,
+					unlimited.getY() / Room.simscale);
+			IVector vec = path.getShortTermVector(7 * Room.simscale);
 			return new Vector(vec.getX(), vec.getY());
 		}
 		return new Vector(0, 0);
@@ -75,7 +77,7 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 			if (this.proom != null) {
 				PathFinder pf = this.proom.getPathfinder();
 				IPoint next = pf.getRandomPoint(this.hitbox);
-				this.goal.getPos().setPos(new java.awt.Point(next.getX(), next.getY()));
+				this.goal.getPos().setPos(new java.awt.Point(next.getX() / Room.simscale, next.getY() / Room.simscale));
 				path = pf.getPathFromTo(this.hitbox.getXY(), next, this.hitbox);
 			}
 		}

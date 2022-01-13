@@ -17,13 +17,10 @@ public class HitBoxBasedModifier implements IMotionModifier {
 
 	public HitBoxBasedModifier(MovingBox nhitbox, IPoint noffset, long nbeginning) {
 		this.hitbox = nhitbox;
-		this.vec = new MotionVector(nhitbox.getVec().getX(), nhitbox.getVec().getY());
+		this.vec = new MotionVector(nhitbox.getVec().getX() / Room.simscale, nhitbox.getVec().getY() / Room.simscale);
 		this.offset = noffset;
 		this.beginning = nbeginning;
-		this.pos = new IPoint.Point(nhitbox.getX() /// Room.simscale
-				, nhitbox.getY()
-		/// Room.simscale
-		);
+		this.pos = new IPoint.Point(nhitbox.getX() / Room.simscale, nhitbox.getY() / Room.simscale);
 
 	}
 
@@ -34,14 +31,11 @@ public class HitBoxBasedModifier implements IMotionModifier {
 
 	public void resetBeginning() {
 		this.beginning = System.currentTimeMillis();
-		Vector nvec = this.hitbox.getVec();
-		this.vec.set(new MotionVector(nvec.getX() /// Room.simscale//
-				, nvec.getY() /// Room.simscale//
-		));
-		this.pos.setX(this.hitbox.getX() /// Room.simscale
-		);
-		this.pos.setY(this.hitbox.getY() /// Room.simscale
-		);
+		Vector bigvec = this.hitbox.getVec();
+		Vector nvec = new Vector(bigvec.getX() / Room.simscale, bigvec.getY() / Room.simscale);
+		this.vec.set(nvec);
+		this.pos.setX(this.hitbox.getX() / Room.simscale);
+		this.pos.setY(this.hitbox.getY() / Room.simscale);
 	}
 
 	@Override

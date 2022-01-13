@@ -32,26 +32,28 @@ public final class RoomGenerator extends Room {
 		for (RoomState.Door door : roomstate.getDoors().values()) {
 			int x = 0, y = 0, wi = 0, he = 0;
 			boolean open = false;
-			int drlen = 4; // épaisseur de la porte
+			int drlen = 4 * Room.simscale; // épaisseur de la porte
 
 			if (door.side.isHorizontal()) {
-				x = (door.side == Side.east) ? Room.rosizex - drlen : 0;
+				x = (door.side == Side.east) ? Room.rosizex * Room.simscale - drlen : 0;
 				wi = drlen;
 				y = door.pos;
 				he = door.size;
 			} else {
 				x = door.pos;
 				wi = door.size;
-				y = (door.side == Side.north) ? 0 : Room.rosizey - drlen;
+				y = (door.side == Side.north) ? 0 : Room.rosizey * Room.simscale - drlen;
 				he = drlen;
 			}
 			open = doors[door.side.ordinal()] != DoorType.wall;
 			if (open) {
-				Rectangle rec = new Rectangle(x, y, wi, he, Color.blue);
+				Rectangle rec = new Rectangle(x / Room.simscale, y / Room.simscale, wi / Room.simscale,
+						he / Room.simscale, Color.blue);
 				r.scene.add(rec, DrawLayer.Room_Walls);
 				r.interactables.getInteractables().add(new DoorInteractable(door, x, y, wi, he));
 			} else {
-				Rectangle rec = new Rectangle(x, y, wi, he, Color.cyan);
+				Rectangle rec = new Rectangle(x / Room.simscale, y / Room.simscale, wi / Room.simscale,
+						he / Room.simscale, Color.cyan);
 				r.scene.add(rec, DrawLayer.Room_Walls);
 			}
 		}

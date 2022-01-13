@@ -1,6 +1,8 @@
 package main.level;
 
 import java.awt.image.BufferedImage;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -10,9 +12,12 @@ import java.util.HashMap;
 
 import engine.game.defaultge.level.type1.Room;
 import engine.physic.basic2Dvectorial.HorizontalSegment;
+import engine.physic.basic2Dvectorial.ISegment;
 import engine.physic.basic2Dvectorial.VerticalSegment;
+import engine.physic.basic2Dvectorial.pathfinding.format.Tile;
 import engine.save.room.type1.RoomState;
 import engine.save.room.type1.Side;
+import engine.save.room.type1.WallSlice;
 import main.level.SlicerMiddleClasses.CaSegments;
 import main.level.SlicerMiddleClasses.CoCaSegments;
 import main.level.SlicerMiddleClasses.Segments;
@@ -26,12 +31,14 @@ public class RoomProcesser {
 
 	protected String path;
 	protected RoomState room;
+	protected String name;
 	protected HashMap<String, String> fields;
-	protected int ratio;
-	protected BufferedImage img2; // TODO replacer img local
+	protected float ratio;
+	// private BufferedImage img2; // TODO replacer img local
 
-	public RoomProcesser(String base, HashMap<String, String> nfields) {
+	public RoomProcesser(String base, String nname, HashMap<String, String> nfields) {
 		this.fields = nfields;
+		this.name = nname;
 		this.path = base + fields.get("hitbox");
 	}
 
@@ -44,60 +51,90 @@ public class RoomProcesser {
 			throw new RuntimeException("taille invalide");
 		}
 		ratio = 640 / img.getWidth();
-		//ratio *= Room.simscale;
+		ratio *= Room.simscale;
+		// img = resize(img, ratio);
 
 		// ArrayList<int[]> hitboxes = this.detectWalls(img);
 		EnumMap<Side, Door> doors = this.detectDoors(img);
 		CoCaSegments segs = this.detectBounds(img);
+
 		RoomSlicer slicer = new RoomSlicer(segs);
 
 		// TODO a voir si OrDefault est une bonne idée ou une exception est mieux
 		RoomType type = RoomType.valueOf(fields.getOrDefault("type", "room"));
 		String visconf = fields.getOrDefault("confvisual", "stages/type1/togen/default/");
-		Log.log(this, "tiles:" + slicer.tiles.toString());
+		String slog = "\n   tiles:" + slicer.tiles.size() + " [";
+		for (Tile tile : slicer.tiles) {
+			slog += " |" + tile.ToString();
+		}
 		///////////// C'EST ICI /////////////////////////
 		this.room = new RoomState(segs.toSuper(), doors, slicer.tiles, type, slicer.vslices.get(69), visconf);
 		/////////////////////////////////////////////////
+
+		String str = name;
+		if (Boolean.TRUE) {
+			str += "\nSEGMENTS: \n north :";
+			for (ISegment seg : segs.get(69).get(Cardinal.north)) {
+				str += " seg:" + seg.getX() + "-" + seg.getX2();
+			}
+			str += "\n south: ";
+			for (ISegment seg : segs.get(69).get(Cardinal.south)) {
+				str += " seg:" + seg.getX() + "-" + seg.getX2();
+			}
+		}
+
+		if (Boolean.TRUE) {
+			str += "\nSLICES:\n north :";
+			for (WallSlice wall : slicer.vslices.get(69)) {
+				str += " sli:" + wall.start + "-" + wall.end;
+			}
+			str += "\n south: ";
+			for (WallSlice wall : slicer.vslices.get(69)) {
+				str += " sli:" + wall.start + "-" + wall.end;
+			}
+		}
+		Log.log(this, str);
 
 		String e = segs.get(69).get(Cardinal.north).size() + "|" //
 				+ segs.get(69).get(Cardinal.south).size() + "|" //
 				+ segs.get(69).get(Cardinal.east).size() + "|" //
 				+ segs.get(69).get(Cardinal.west).size();
-		Log.log(this, "imported: boxes:" + slicer.vslices.size() + " walls:" + e + " doors:" + doors.size());
+		slog += "]\n   imported: slices:" + slicer.vslices.size() + " doors:" + doors.size() + " walls:" + e + "\n";
+		Log.log(this, slog);
 	}
 
-	protected ArrayList<int[]> detectWalls(BufferedImage img) {
-		ArrayList<Integer> colors = new ArrayList<Integer>();
-		ArrayList<int[]> hitboxes = new ArrayList<int[]>();
-
-		for (int ity1 = 0; ity1 < img.getHeight(); ity1++) {
-			for (int itx1 = 0; itx1 < img.getWidth(); itx1++) {
-				int color = img.getRGB(itx1, ity1);
-				if (color != -1) {
-					boolean contained = colors.stream().anyMatch((Integer col) -> col == color);
-					if (!contained) {
-						colors.add(color);
-						int itx2 = itx1;
-						while ((itx2 + 1 < img.getWidth()) && (color == img.getRGB(itx2 + 1, ity1))) {
-							itx2++;
-						}
-						int ity2 = ity1;
-						while ((ity2 + 1 < img.getHeight()) && (color == img.getRGB(itx2, ity2 + 1))) {
-							ity2++;
-						}
-						int x1, y1, x2, y2;
-						x1 = itx1 * ratio;
-						y1 = ity1 * ratio;
-						x2 = itx2 * ratio;
-						y2 = ity2 * ratio;
-						hitboxes.add(new int[] { x1, y1, x2 + 1, y2 + 1 });
-						// Log.log(this, "x1:" + x1 + " y1:" + y1 + " x2:" + x2 + " y2:" + y2);
-					}
-				}
-			}
-		}
-		return hitboxes;
-	}
+//	protected ArrayList<int[]> detectWalls(BufferedImage img) {
+//		ArrayList<Integer> colors = new ArrayList<Integer>();
+//		ArrayList<int[]> hitboxes = new ArrayList<int[]>();
+//
+//		for (int ity1 = 0; ity1 < img.getHeight(); ity1++) {
+//			for (int itx1 = 0; itx1 < img.getWidth(); itx1++) {
+//				int color = img.getRGB(itx1, ity1);
+//				if (color != -1) {
+//					boolean contained = colors.stream().anyMatch((Integer col) -> col == color);
+//					if (!contained) {
+//						colors.add(color);
+//						int itx2 = itx1;
+//						while ((itx2 + 1 < img.getWidth()) && (color == img.getRGB(itx2 + 1, ity1))) {
+//							itx2++;
+//						}
+//						int ity2 = ity1;
+//						while ((ity2 + 1 < img.getHeight()) && (color == img.getRGB(itx2, ity2 + 1))) {
+//							ity2++;
+//						}
+//						int x1, y1, x2, y2;
+//						x1 = (int) (itx1 * ratio);
+//						y1 = (int) (ity1 * ratio);
+//						x2 = (int) (itx2 * ratio);
+//						y2 = (int) (ity2 * ratio);
+//						hitboxes.add(new int[] { x1, y1, x2 + 1, y2 + 1 });
+//						// Log.log(this, "x1:" + x1 + " y1:" + y1 + " x2:" + x2 + " y2:" + y2);
+//					}
+//				}
+//			}
+//		}
+//		return hitboxes;
+//	}
 
 	protected CoCaSegments detectBounds(BufferedImage img) {
 		CoCaSegments segs = new CoCaSegments();
@@ -135,7 +172,11 @@ public class RoomProcesser {
 
 					segs.computeIfAbsent(ne, (e) -> (new CaSegments()));
 					segs.get(ne).computeIfAbsent(Cardinal.north, (e) -> new Segments());
-					segs.get(ne).get(Cardinal.north).add(new HorizontalSegment(itx1, itx2 - 2, ity1 - 1, ne));
+					float px1 = itx1 * ratio, //
+							px2 = (itx2 - 2) * ratio, //
+							py = (ity1 - 1) * ratio;
+					ISegment nseg = new HorizontalSegment((int) px1, (int) px2, (int) py, ne);
+					segs.get(ne).get(Cardinal.north).add(nseg);
 
 				}
 				if (stx2) {
@@ -147,7 +188,11 @@ public class RoomProcesser {
 					}
 					segs.computeIfAbsent(se, (e) -> (new CaSegments()));
 					segs.get(se).computeIfAbsent(Cardinal.south, (e) -> new Segments());
-					segs.get(se).get(Cardinal.south).add(new HorizontalSegment(itx1, itx2 - 2, ity1, se));
+					float px1 = (itx1) * ratio, //
+							px2 = (itx2 - 2) * ratio, //
+							py = (ity1) * ratio;
+					ISegment nseg = new HorizontalSegment((int) px1, (int) px2, (int) py, se);
+					segs.get(se).get(Cardinal.south).add(nseg);
 
 				}
 				if (sty) {
@@ -159,7 +204,11 @@ public class RoomProcesser {
 					}
 					segs.computeIfAbsent(sw, (e) -> (new CaSegments()));
 					segs.get(sw).computeIfAbsent(Cardinal.west, (e) -> new Segments());
-					segs.get(sw).get(Cardinal.west).add(new VerticalSegment(itx1 - 1, ity1, ity2 - 2, sw));
+					float px = (itx1 - 1) * ratio, //
+							py1 = (ity1) * ratio, //
+							py2 = (ity2 - 2) * ratio;
+					ISegment nseg = new VerticalSegment((int) px, (int) py1, (int) py2, sw);
+					segs.get(sw).get(Cardinal.west).add(nseg);
 
 				}
 				if (sty2) {
@@ -171,7 +220,11 @@ public class RoomProcesser {
 					}
 					segs.computeIfAbsent(se, (e) -> (new CaSegments()));
 					segs.get(se).computeIfAbsent(Cardinal.east, (e) -> new Segments());
-					segs.get(se).get(Cardinal.east).add(new VerticalSegment(itx1, ity1, ity2 - 2, se));
+					float px = (itx1) * ratio, //
+							py1 = (ity1) * ratio, //
+							py2 = (ity2 - 2) * ratio;
+					ISegment nseg = new VerticalSegment((int) px, (int) py1, (int) py2, se);
+					segs.get(se).get(Cardinal.east).add(nseg);
 
 				}
 			}
@@ -230,7 +283,8 @@ public class RoomProcesser {
 		}
 		if (state.reading) {
 			state.reading = false;
-			state.rtn.put(state.side, new Door(state.side, state.beg * ratio, (state.end - state.beg) * ratio));
+			state.rtn.put(state.side,
+					new Door(state.side, (int) (state.beg * ratio), (int) ((state.end - state.beg) * ratio)));
 		}
 	}
 
@@ -246,7 +300,7 @@ public class RoomProcesser {
 			if (stt.reading) {
 				stt.reading = false;
 				stt.end = it - 1 + 1;
-				stt.rtn.put(stt.side, new Door(stt.side, stt.beg * ratio, (stt.end - stt.beg) * ratio));
+				stt.rtn.put(stt.side, new Door(stt.side, (int) (stt.beg * ratio), (int) ((stt.end - stt.beg) * ratio)));
 			}
 
 		}
@@ -266,5 +320,17 @@ public class RoomProcesser {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static BufferedImage resize(BufferedImage img, float ratio) {
+		float nwi = img.getWidth() * ratio, nhe = img.getHeight() * ratio;
+		Image tmp = img.getScaledInstance((int) nwi, (int) nhe, Image.SCALE_SMOOTH);
+		BufferedImage dimg = new BufferedImage((int) nwi, (int) nhe, BufferedImage.TYPE_INT_ARGB);
+
+		Graphics2D g2d = dimg.createGraphics();
+		g2d.drawImage(tmp, 0, 0, null);
+		g2d.dispose();
+
+		return dimg;
 	}
 }
