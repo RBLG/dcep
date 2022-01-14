@@ -33,7 +33,7 @@ public class Room {
 	public final static int rosizey = Basic2DSub.LDymax;
 	public final static int rosizex = Basic2DSub.LDxmax;
 	//////////////////////////////////////////////////////////////
-	public static final int simscale = 2; // emplacement temporaire
+	public static final int simscale = 1; // emplacement temporaire
 	public static final float invsimscale = 1 / (float) simscale;
 
 	protected Scene scene;
@@ -74,8 +74,8 @@ public class Room {
 
 		// a la fin de l'instantiation des ess (au cas ou j'ai envie d'en ajouter plus)
 		this.ews.add(this.interactables);
-		this.ews.add(
-				new WandererTest(stage, this, this.pathfinder.getRandomPoint(new IRectangle.Rectangle(0, 0, 20, 17))));
+		this.ews.add(new WandererTest(stage, this, this.pathfinder
+				.getRandomPoint(new IRectangle.Rectangle(0, 0, 20 * Room.simscale, 17 * Room.simscale))));
 
 		for (RoomVisual vis : visuals) {
 			this.scene.add(vis.rd, vis.lay);

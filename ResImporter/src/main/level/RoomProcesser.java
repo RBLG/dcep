@@ -75,22 +75,22 @@ public class RoomProcesser {
 		if (Boolean.TRUE) {
 			str += "\nSEGMENTS: \n north :";
 			for (ISegment seg : segs.get(69).get(Cardinal.north)) {
-				str += " seg:" + seg.getX() + "-" + seg.getX2();
+				str += " seg:" + seg.getX() + "-" + seg.getX2() + "(" + (seg.getX2() - seg.getX()) + ")";
 			}
 			str += "\n south: ";
 			for (ISegment seg : segs.get(69).get(Cardinal.south)) {
-				str += " seg:" + seg.getX() + "-" + seg.getX2();
+				str += " seg:" + seg.getX() + "-" + seg.getX2() + "(" + (seg.getX2() - seg.getX()) + ")";
 			}
 		}
 
 		if (Boolean.TRUE) {
 			str += "\nSLICES:\n north :";
 			for (WallSlice wall : slicer.vslices.get(69)) {
-				str += " sli:" + wall.start + "-" + wall.end;
+				str += " sli:" + wall.start + "-" + wall.end + "(" + (wall.end - wall.start) + ")";
 			}
 			str += "\n south: ";
 			for (WallSlice wall : slicer.vslices.get(69)) {
-				str += " sli:" + wall.start + "-" + wall.end;
+				str += " sli:" + wall.start + "-" + wall.end + "(" + (wall.end - wall.start) + ")";
 			}
 		}
 		Log.log(this, str);

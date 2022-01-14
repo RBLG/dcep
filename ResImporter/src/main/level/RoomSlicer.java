@@ -38,7 +38,7 @@ public class RoomSlicer {
 
 	public CoWSlices sliceVertically(CoCaSegments allsegs) {
 		// -10 pour etre tranquille
-		ISegment hordef = new HorizontalSegment(0, Room.rosizex, -10, 0);
+		ISegment hordef = new HorizontalSegment(0, Room.rosizex * Room.simscale, -10 * Room.simscale, 0);
 		// verdef = new VerticalSegment(-10, 0, Room.rosizey, 0);
 		CoWSlices rtn = new CoWSlices();
 
@@ -52,9 +52,9 @@ public class RoomSlicer {
 				int lstart = base.getX();
 				ISegment topseg = hordef;
 				ISegment lstopseg = hordef;
-				for (int it1 = base.getX(); it1 < base.getX2(); it1++) {
+				for (int it1 = base.getX(); it1 < base.getX2(); it1 += Room.simscale) {
 					lstopseg = topseg;
-					int height = -999;
+					int height = Integer.MIN_VALUE;
 					for (ISegment top : segs.get(Cardinal.south)) {
 						if (top.getX() <= it1 && it1 <= top.getX2()) {
 							if (top.getY() > height && top.getY() <= base.getY()) {
@@ -65,8 +65,7 @@ public class RoomSlicer {
 					}
 					if (!lstopseg.equals(topseg)) {
 						if (it1 != base.getX()) {
-							slices.add(
-									new WallSlice(lstopseg, base, lstart, it1 - 1, base.getColor()));
+							slices.add(new WallSlice(lstopseg, base, lstart, it1 - 1 * Room.simscale, base.getColor()));
 						}
 						lstart = it1;
 					}
@@ -78,9 +77,10 @@ public class RoomSlicer {
 		return rtn;
 	}
 
+	// TODO fix le duplicate
 	public CoWSlices sliceHorizontally(CoCaSegments allsegs) {
 		// -10 pour etre tranquille
-		ISegment verdef = new VerticalSegment(-10, 0, Room.rosizey, 0);
+		ISegment verdef = new VerticalSegment(-10, 0, Room.rosizey * Room.simscale, 0);
 		CoWSlices rtn = new CoWSlices();
 
 		for (Entry<Integer, CaSegments> entry : allsegs.entrySet()) {
@@ -93,7 +93,7 @@ public class RoomSlicer {
 				int lstart = base.getY();
 				ISegment topseg = verdef;
 				ISegment lstopseg = verdef;
-				for (int it1 = base.getY(); it1 < base.getY2(); it1++) {
+				for (int it1 = base.getY(); it1 < base.getY2(); it1 += Room.simscale) {
 					lstopseg = topseg;
 					int height = -999;
 					for (ISegment top : segs.get(Cardinal.east)) {
@@ -106,7 +106,7 @@ public class RoomSlicer {
 					}
 					if (!lstopseg.equals(topseg)) {
 						if (it1 != base.getY()) {
-							slices.add(new WallSlice(lstopseg, base, lstart, it1 - 1, base.getColor()));
+							slices.add(new WallSlice(lstopseg, base, lstart, it1 - 1 * Room.simscale, base.getColor()));
 						}
 						lstart = it1;
 					}
@@ -240,13 +240,14 @@ public class RoomSlicer {
 		// deplacable dans une autre fonction
 		ArrayList<Tile> tiles = new ArrayList<>();
 		for (PreTile prt : incompletes) {
-			Range rg = ranges.get(prt.length - 1);
+			int li = prt.length - 1;
+			Range rg = ranges.get(li);
 
 			int x, y, x2, y2;
 			x = hoall.crossing.get(prt.beg).x;
 			y = hoall.crossing.get(prt.beg).crossing.get(prt.start + prt.ori).y;
-			x2 = hoall.crossing.get(prt.length - 1).x2;
-			y2 = hoall.crossing.get(prt.length - 1).crossing.get(prt.end + rg.origin - 1).y2;
+			x2 = hoall.crossing.get(li).x2;
+			y2 = hoall.crossing.get(li).crossing.get(prt.end + rg.origin - 1).y2;
 			tiles.add(new Tile(x, y, x2, y2));
 		}
 

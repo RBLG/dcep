@@ -61,11 +61,11 @@ public class RoomState implements Serializable {
 
 		int nx = 0, ny = 0;
 		if (dir.isHorizontal()) {
-			nx = (dir == Cardinal.east) ? 1 : Room.rosizex - wh.getX() - 1;
+			nx = (dir == Cardinal.east) ? 1 : (Room.rosizex * Room.simscale) - wh.getX() - 1;
 			ny = entrydoor.pos + (entrydoor.size - wh.getY()) / 2;
 		} else {
 			nx = entrydoor.pos + (entrydoor.size - wh.getX()) / 2;
-			ny = (dir == Cardinal.north) ? Room.rosizey - wh.getY() - 1 : 1;
+			ny = (dir == Cardinal.north) ? (Room.rosizey * Room.simscale) - wh.getY() - 1 : 1;
 		}
 		return new Point(nx, ny);
 	}

@@ -53,7 +53,7 @@ public final class RoomVisualGenerator extends Room {
 		int imgh = wallpat.img.getHeight();
 		
 		
-		int wallcolor = 0xF000F000;
+		//int wallcolor = 0xF000F000;
 		for (WallSlice maxslice : slices) { // TODO a adapter pour gerer l'orientation des slices
 			WallSlice slice = new WallSlice(//
 					new HorizontalSegment(maxslice.top, Room.invsimscale), //
@@ -66,9 +66,9 @@ public final class RoomVisualGenerator extends Room {
 					slice.end + 1 - slice.start, //
 					slice.bottom.getY() + 1 - slice.top.getY() //
 			);
-			//wallcv.g.setColor(new Color(0x101010));
-			wallcolor += 666;
-			wallcv.g.setColor(new Color(wallcolor));
+			wallcv.g.setColor(new Color(0x101010));
+			//wallcolor += 666;
+			//wallcv.g.setColor(new Color(wallcolor));
 			wallcv.g.fill(sli); // fond noir
 
 			shadcv.g.setColor(new Color(0x10, 0x10, 0x10, 100));
@@ -112,7 +112,7 @@ public final class RoomVisualGenerator extends Room {
 		// room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, new
 		// StillImage(shadcv.img, 0, 0)));
 
-		if (Boolean.FALSE) {// TODO trud de test, a enlever
+		if (Boolean.TRUE) {// TODO trud de test, a enlever
 			/////////////////////////////////////////////////////////
 			CanvasImage navtestcv = new CanvasImage(Room.rosizex, Room.rosizey);
 			navtestcv.g.setComposite(AlphaComposite.SrcOver.derive(0.3f));

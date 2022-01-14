@@ -66,7 +66,7 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 					this.hitbox.getY() / Room.simscale);
 			this.nextonpath.getPos().getPos().translate(unlimited.getX() / Room.simscale,
 					unlimited.getY() / Room.simscale);
-			IVector vec = path.getShortTermVector(7 * Room.simscale);
+			IVector vec = path.getShortTermVector(1 * Room.simscale);
 			return new Vector(vec.getX(), vec.getY());
 		}
 		return new Vector(0, 0);
