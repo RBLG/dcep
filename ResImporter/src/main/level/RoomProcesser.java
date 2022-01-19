@@ -29,6 +29,8 @@ import my.util.Log;
 
 public class RoomProcesser {
 
+	public static final int colorcode_road = -1;
+
 	protected String path;
 	protected RoomState room;
 	protected String name;
@@ -103,39 +105,6 @@ public class RoomProcesser {
 		Log.log(this, slog);
 	}
 
-//	protected ArrayList<int[]> detectWalls(BufferedImage img) {
-//		ArrayList<Integer> colors = new ArrayList<Integer>();
-//		ArrayList<int[]> hitboxes = new ArrayList<int[]>();
-//
-//		for (int ity1 = 0; ity1 < img.getHeight(); ity1++) {
-//			for (int itx1 = 0; itx1 < img.getWidth(); itx1++) {
-//				int color = img.getRGB(itx1, ity1);
-//				if (color != -1) {
-//					boolean contained = colors.stream().anyMatch((Integer col) -> col == color);
-//					if (!contained) {
-//						colors.add(color);
-//						int itx2 = itx1;
-//						while ((itx2 + 1 < img.getWidth()) && (color == img.getRGB(itx2 + 1, ity1))) {
-//							itx2++;
-//						}
-//						int ity2 = ity1;
-//						while ((ity2 + 1 < img.getHeight()) && (color == img.getRGB(itx2, ity2 + 1))) {
-//							ity2++;
-//						}
-//						int x1, y1, x2, y2;
-//						x1 = (int) (itx1 * ratio);
-//						y1 = (int) (ity1 * ratio);
-//						x2 = (int) (itx2 * ratio);
-//						y2 = (int) (ity2 * ratio);
-//						hitboxes.add(new int[] { x1, y1, x2 + 1, y2 + 1 });
-//						// Log.log(this, "x1:" + x1 + " y1:" + y1 + " x2:" + x2 + " y2:" + y2);
-//					}
-//				}
-//			}
-//		}
-//		return hitboxes;
-//	}
-
 	protected CoCaSegments detectBounds(BufferedImage img) {
 		CoCaSegments segs = new CoCaSegments();
 		// les tiles nw,ne,sw,se
@@ -145,6 +114,7 @@ public class RoomProcesser {
 		boolean stx, sty, stx2, sty2;
 		for (int ity1 = -1; ity1 < img.getHeight() + 2; ity1++) {
 			for (int itx1 = -1; itx1 < img.getWidth() + 2; itx1++) {
+				// -1 pour scan des quatres pixels
 				nw = getRGBOrDefault(itx1 - 1, ity1 - 1, img);
 				ne = getRGBOrDefault(itx1, ity1 - 1, img);
 				sw = getRGBOrDefault(itx1 - 1, ity1, img);
@@ -162,8 +132,7 @@ public class RoomProcesser {
 				// (droite)
 				sty2 = !is && !(iw && ie);
 				if (stx) {
-					int itx2 = itx1 + 1;
-					int tn = ne, ts = se;
+					int itx2 = itx1 + 1, tn = ne, ts = se;
 					while (tn == ne && ts != ne) {
 						tn = getRGBOrDefault(itx2, ity1 - 1, img);
 						ts = getRGBOrDefault(itx2, ity1, img);
@@ -173,7 +142,9 @@ public class RoomProcesser {
 					segs.computeIfAbsent(ne, (e) -> (new CaSegments()));
 					segs.get(ne).computeIfAbsent(Cardinal.north, (e) -> new Segments());
 					float px1 = itx1 * ratio, //
-							px2 = (itx2 - 2) * ratio, //
+							// 1er -1: palie a la computation a it+1
+							// 2nd -1: parce que la fin d'un segment est au -1 du segment suivant
+							px2 = (itx2 - 1) * ratio - 1, //
 							py = (ity1 - 1) * ratio;
 					ISegment nseg = new HorizontalSegment((int) px1, (int) px2, (int) py, ne);
 					segs.get(ne).get(Cardinal.north).add(nseg);
@@ -189,7 +160,7 @@ public class RoomProcesser {
 					segs.computeIfAbsent(se, (e) -> (new CaSegments()));
 					segs.get(se).computeIfAbsent(Cardinal.south, (e) -> new Segments());
 					float px1 = (itx1) * ratio, //
-							px2 = (itx2 - 2) * ratio, //
+							px2 = (itx2 - 1) * ratio - 1, //
 							py = (ity1) * ratio;
 					ISegment nseg = new HorizontalSegment((int) px1, (int) px2, (int) py, se);
 					segs.get(se).get(Cardinal.south).add(nseg);
@@ -206,7 +177,7 @@ public class RoomProcesser {
 					segs.get(sw).computeIfAbsent(Cardinal.west, (e) -> new Segments());
 					float px = (itx1 - 1) * ratio, //
 							py1 = (ity1) * ratio, //
-							py2 = (ity2 - 2) * ratio;
+							py2 = (ity2 - 1) * ratio - 1;
 					ISegment nseg = new VerticalSegment((int) px, (int) py1, (int) py2, sw);
 					segs.get(sw).get(Cardinal.west).add(nseg);
 
@@ -222,7 +193,7 @@ public class RoomProcesser {
 					segs.get(se).computeIfAbsent(Cardinal.east, (e) -> new Segments());
 					float px = (itx1) * ratio, //
 							py1 = (ity1) * ratio, //
-							py2 = (ity2 - 2) * ratio;
+							py2 = (ity2 - 1) * ratio - 1;
 					ISegment nseg = new VerticalSegment((int) px, (int) py1, (int) py2, se);
 					segs.get(se).get(Cardinal.east).add(nseg);
 
@@ -236,12 +207,10 @@ public class RoomProcesser {
 		if (itx < 0 || itx >= img.getWidth() || ity < 0 || ity >= img.getHeight()) {
 			return 68;
 		}
-		if (img.getRGB(itx, ity) != -1) {// pour faire comme si la map était en noir et blanc
+		if (img.getRGB(itx, ity) != colorcode_road) {// pour faire comme si la map était en noir et blanc
 			return 69; // 69 c'est le noir trust me
-		} else {
-			return -1;
 		}
-		// return img.getRGB(itx, ity);
+		return img.getRGB(itx, ity);
 	}
 
 	protected EnumMap<Side, Door> detectDoors(BufferedImage img) {
@@ -274,24 +243,23 @@ public class RoomProcesser {
 			for (int it1 = 0; it1 < state.img.getWidth(); it1++) {
 				detectDoorsSubSub(it1, pos2, it1, state);
 			}
-			state.end = state.img.getWidth() - 1 + 1; // +1 pour le passage du systeme 0-9 au 1-10
+			state.end = state.img.getWidth() - 1 ; //-1 de passage de 1-10 a 0-9 
 		} else {
 			for (int it2 = 0; it2 < state.img.getHeight(); it2++) {
 				detectDoorsSubSub(pos2, it2, it2, state);
 			}
-			state.end = state.img.getHeight() - 1 + 1;
+			state.end = state.img.getHeight() - 1 ;
 		}
 		if (state.reading) {
 			state.reading = false;
-			state.rtn.put(state.side,
-					new Door(state.side, (int) (state.beg * ratio), (int) ((state.end - state.beg) * ratio)));
+			int rbeg = (int) (state.beg * ratio);
+			int rlen = (int) ((state.end - state.beg) * ratio);
+			state.rtn.put(state.side, new Door(state.side, rbeg, rlen));
 		}
 	}
 
 	protected void detectDoorsSubSub(int x, int y, int it, DetectionState stt) {
-		// Log.log(this, "x:" + x + " y:" + y + " w:" + state.img.getWidth() + " h:" +
-		// state.img.getHeight());
-		if (stt.img.getRGB(x, y) == -1) {
+		if (stt.img.getRGB(x, y) == colorcode_road) {
 			if (!stt.reading) { // nouvelle porte
 				stt.reading = true;
 				stt.beg = it;
@@ -299,8 +267,10 @@ public class RoomProcesser {
 		} else {
 			if (stt.reading) {
 				stt.reading = false;
-				stt.end = it - 1 + 1;
-				stt.rtn.put(stt.side, new Door(stt.side, (int) (stt.beg * ratio), (int) ((stt.end - stt.beg) * ratio)));
+				stt.end = it - 1;
+				int rbeg = (int) (stt.beg * ratio);
+				int rlen = (int) ((stt.end - stt.beg) * ratio);
+				stt.rtn.put(stt.side, new Door(stt.side, rbeg, rlen));
 			}
 
 		}

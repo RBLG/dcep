@@ -42,7 +42,7 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 		this.scontext = nscontext;
 
 		this.motprov = new BasicV2PlayerInput(scontext.getInputE());
-		this.hitbox = new MovingBox(0, 0, 20 * Room.simscale, 17 * Room.simscale, this.motprov, this, this);
+		this.hitbox = MovingBox.newScaled(0, 0, 20, 17, this.motprov, this, this, Room.simscale);
 		this.mod = new HitBoxBasedModifier(this.hitbox, new IPoint.Point(0, 0), 0);
 
 		// TODO a externaliser en fichier de conf

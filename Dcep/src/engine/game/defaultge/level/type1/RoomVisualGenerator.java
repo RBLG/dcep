@@ -8,7 +8,6 @@ import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import engine.physic.basic2Dvectorial.HorizontalSegment;
 import engine.physic.basic2Dvectorial.pathfinding.format.Tile;
 import engine.physic.basic2Dvectorial.pathfindingV2.ResizedNavigationMesh;
 import engine.render.engine2d.DrawLayer;
@@ -51,59 +50,40 @@ public final class RoomVisualGenerator extends Room {
 		// visconf.get("base", "lowwall"));
 
 		int imgh = wallpat.img.getHeight();
-		
-		
-		//int wallcolor = 0xF000F000;
+
+		// int wallcolor = 0xF000F000;
 		for (WallSlice maxslice : slices) { // TODO a adapter pour gerer l'orientation des slices
-			WallSlice slice = new WallSlice(//
-					new HorizontalSegment(maxslice.top, Room.invsimscale), //
-					new HorizontalSegment(maxslice.bottom, Room.invsimscale), //
-					maxslice.start / Room.simscale, maxslice.end / Room.simscale, maxslice.color);
+			WallSlice slice = WallSlice.newScaled(maxslice, Room.invsimscale);
 			//////////////////////////////////////////////////////////////////
-			Rectangle sli = new Rectangle(//
-					slice.start, //
-					slice.top.getY(), //
-					slice.end + 1 - slice.start, //
-					slice.bottom.getY() + 1 - slice.top.getY() //
-			);
+			IRectangle mysli = slice.getZone();//.to010from09();
+			Rectangle awtsli = mysli.toAwt();
 			wallcv.g.setColor(new Color(0x101010));
-			//wallcolor += 666;
-			//wallcv.g.setColor(new Color(wallcolor));
-			wallcv.g.fill(sli); // fond noir
+			// wallcolor += 666;
+			// wallcv.g.setColor(new Color(wallcolor));
+			wallcv.g.fill(awtsli); // fond noir
 
 			shadcv.g.setColor(new Color(0x10, 0x10, 0x10, 100));
 			// shadcv.g.setColor(new Color((0x101010 & 0xFF0000) >> 16, (0x101010 &
 			// 0x00FF00) >> 8, (0x101010 & 0x0000FF), 100));
 			// si c'est pas le mur du bas
-			if (!(slice.bottom.getY() >= Room.rosizey)) {
-				Graphics2D gra2 = (Graphics2D) wallcv.g.create(sli.x, sli.y, sli.width, sli.height);
+			if (!(mysli.getY2() >= Room.rosizey)) {
+				Graphics2D gra2 = (Graphics2D) wallcv.g.create(awtsli.x, awtsli.y, awtsli.width, awtsli.height);
 
-				if (sli.height > 41) {
-
+				if (mysli.getHeight() < imgh+1000) {
 					Rectangle wa = new Rectangle(//
-							slice.bottom.getX() - sli.x, //
-							slice.bottom.getY() - imgh - sli.y, //
+							slice.bottom.getX() - mysli.getX(), //
+							mysli.getHeight() - imgh, //
 							slice.bottom.getX2() + 1, //
-							imgh + 1//
+							imgh//
 					);
-					shadcv.g.fillRect(sli.x, sli.y + 10 - imgh, sli.width, wa.height - 10); // ombre du mur
+					shadcv.g.fillRect(awtsli.x, awtsli.y + 10 - imgh, awtsli.width, wa.height - 10); // ombre du mur
 					wallpat.setItPaint(wa.x, wa.y, gra2);
 					gra2.fill(wa);
 				}
-//				 else {
-//					Rectangle wa = new Rectangle(//
-//							slice.bottom.getX() - sli.x, //
-//							slice.bottom.getY() - lowwallpat.img.getHeight() - sli.y, //
-//							slice.bottom.getX2() + 1, //
-//							lowwallpat.img.getHeight() + 1//
-//					);
-//					shadcv.g.fillRect(sli.x, sli.y + 10 - lowwallpat.img.getHeight(), sli.width, wa.height - 10);
-//					lowwallpat.setItPaint(wa.x, wa.y, gra2);
-//					gra2.fill(wa);
-//				}
+//				 
 				gra2.finalize();
 			} else {
-				shadcv.g.fillRect(sli.x, sli.y + 10 - imgh, sli.width, imgh - 10);
+				shadcv.g.fillRect(awtsli.x, awtsli.y + 10 - imgh, awtsli.width, imgh - 10);
 			}
 
 		}
@@ -112,7 +92,7 @@ public final class RoomVisualGenerator extends Room {
 		// room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, new
 		// StillImage(shadcv.img, 0, 0)));
 
-		if (Boolean.TRUE) {// TODO trud de test, a enlever
+		if (Boolean.FALSE) {// TODO trud de test, a enlever
 			/////////////////////////////////////////////////////////
 			CanvasImage navtestcv = new CanvasImage(Room.rosizex, Room.rosizey);
 			navtestcv.g.setComposite(AlphaComposite.SrcOver.derive(0.3f));

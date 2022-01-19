@@ -52,12 +52,12 @@ public class RoomSlicer {
 				int lstart = base.getX();
 				ISegment topseg = hordef;
 				ISegment lstopseg = hordef;
-				for (int it1 = base.getX(); it1 < base.getX2(); it1 += Room.simscale) {
+				for (int it1 = base.getX(); it1 <= base.getX2(); it1++) {//y avait un < au lieu de <=
 					lstopseg = topseg;
 					int height = Integer.MIN_VALUE;
 					for (ISegment top : segs.get(Cardinal.south)) {
-						if (top.getX() <= it1 && it1 <= top.getX2()) {
-							if (top.getY() > height && top.getY() <= base.getY()) {
+						if (top.getXX().isLooselyContaining(it1)) {
+							if (height < top.getY() && top.getY() <= base.getY()) {
 								height = top.getY();
 								topseg = top;
 							}
@@ -65,7 +65,8 @@ public class RoomSlicer {
 					}
 					if (!lstopseg.equals(topseg)) {
 						if (it1 != base.getX()) {
-							slices.add(new WallSlice(lstopseg, base, lstart, it1 - 1 * Room.simscale, base.getColor()));
+							// -1 parce que it est a n+1 (ou est a n et la fin a n-1)
+							slices.add(new WallSlice(lstopseg, base, lstart, it1 - 1, base.getColor()));
 						}
 						lstart = it1;
 					}
@@ -80,7 +81,7 @@ public class RoomSlicer {
 	// TODO fix le duplicate
 	public CoWSlices sliceHorizontally(CoCaSegments allsegs) {
 		// -10 pour etre tranquille
-		ISegment verdef = new VerticalSegment(-10, 0, Room.rosizey * Room.simscale, 0);
+		ISegment verdef = new VerticalSegment(-10 * Room.simscale, 0, Room.rosizey * Room.simscale, 0);
 		CoWSlices rtn = new CoWSlices();
 
 		for (Entry<Integer, CaSegments> entry : allsegs.entrySet()) {
@@ -93,12 +94,12 @@ public class RoomSlicer {
 				int lstart = base.getY();
 				ISegment topseg = verdef;
 				ISegment lstopseg = verdef;
-				for (int it1 = base.getY(); it1 < base.getY2(); it1 += Room.simscale) {
+				for (int it1 = base.getY(); it1 <= base.getY2(); it1++) {
 					lstopseg = topseg;
-					int height = -999;
+					int height = Integer.MIN_VALUE;
 					for (ISegment top : segs.get(Cardinal.east)) {
-						if (top.getY() <= it1 && top.getY2() >= it1) {
-							if (top.getX() > height && top.getX() < base.getX()) {
+						if (top.getYY().isLooselyContaining(it1)) {
+							if (height < top.getX() && top.getX() < base.getX()) {
 								height = top.getX();
 								topseg = top;
 							}
@@ -106,7 +107,7 @@ public class RoomSlicer {
 					}
 					if (!lstopseg.equals(topseg)) {
 						if (it1 != base.getY()) {
-							slices.add(new WallSlice(lstopseg, base, lstart, it1 - 1 * Room.simscale, base.getColor()));
+							slices.add(new WallSlice(lstopseg, base, lstart, it1 - 1, base.getColor()));
 						}
 						lstart = it1;
 					}
@@ -423,7 +424,7 @@ public class RoomSlicer {
 	}
 
 	public static class PreTile {
-		int start, end, beg, length = 999999999;
+		int start, end, beg, length = Integer.MAX_VALUE;
 		int ori;
 
 		public PreTile(int nstart, int nend, int nbeg, int nori) {

@@ -33,8 +33,8 @@ public class Room {
 	public final static int rosizey = Basic2DSub.LDymax;
 	public final static int rosizex = Basic2DSub.LDxmax;
 	//////////////////////////////////////////////////////////////
-	public static final int simscale = 1; // emplacement temporaire
-	public static final float invsimscale = 1 / (float) simscale;
+	public static final int simscale = 100; // emplacement temporaire
+	public static final float invsimscale = 1f / simscale;
 
 	protected Scene scene;
 	public RoomState state;
