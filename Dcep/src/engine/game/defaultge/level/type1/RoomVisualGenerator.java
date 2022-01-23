@@ -50,13 +50,16 @@ public final class RoomVisualGenerator extends Room {
 		// visconf.get("base", "lowwall"));
 
 		int imgh = wallpat.img.getHeight();
-
+		Log.e("\n Room:");
 		// int wallcolor = 0xF000F000;
 		for (WallSlice maxslice : slices) { // TODO a adapter pour gerer l'orientation des slices
 			WallSlice slice = WallSlice.newScaled(maxslice, Room.invsimscale);
 			//////////////////////////////////////////////////////////////////
-			IRectangle mysli = slice.getZone();//.to010from09();
+			IRectangle mysli = slice.getZone();// .to010from09();
 			Rectangle awtsli = mysli.toAwt();
+			Log.e("x:" + maxslice.start + " y:" + maxslice.top.getY() + " x2:" + maxslice.end + " y2:" + maxslice.bottom.getY());
+			Log.e(" pre:" + maxslice.ToString() + " scal:" + slice.ToString() + " mysli: " + mysli.ToString() + " awt:"
+					+ awtsli.toString());
 			wallcv.g.setColor(new Color(0x101010));
 			// wallcolor += 666;
 			// wallcv.g.setColor(new Color(wallcolor));
@@ -66,10 +69,10 @@ public final class RoomVisualGenerator extends Room {
 			// shadcv.g.setColor(new Color((0x101010 & 0xFF0000) >> 16, (0x101010 &
 			// 0x00FF00) >> 8, (0x101010 & 0x0000FF), 100));
 			// si c'est pas le mur du bas
-			if (!(mysli.getY2() >= Room.rosizey)) {
+			if (mysli.getY2() < Room.rosizey) {
 				Graphics2D gra2 = (Graphics2D) wallcv.g.create(awtsli.x, awtsli.y, awtsli.width, awtsli.height);
 
-				if (mysli.getHeight() < imgh+1000) {
+				if (mysli.getHeight() < imgh + 1000) {
 					Rectangle wa = new Rectangle(//
 							slice.bottom.getX() - mysli.getX(), //
 							mysli.getHeight() - imgh, //

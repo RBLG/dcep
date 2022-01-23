@@ -47,6 +47,10 @@ public class WallSlice implements Serializable {
 	}
 
 	public IRectangle getZone() {
-		return new IRectangle.Rectangle(start, end, getLength(), getHeight());
+		return new IRectangle.Rectangle(start, top.getY(), end, bottom.getY());
+	}
+	
+	public String ToString() {
+		return getZone().ToString();
 	}
 }
