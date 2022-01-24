@@ -21,10 +21,9 @@ import engine.render.engine2d.renderable.LoopingAnimation;
 import engine.render.engine2d.renderable.MapGraphicEntity;
 import engine.render.misc.HitBoxBasedModifier;
 import my.util.Cardinal;
-import my.util.Geometry;
 import my.util.geometry.IPoint;
 import my.util.geometry.IPoint.Point;
-import my.util.geometry.IVector;
+import my.util.geometry.floats.IFloatVector;
 
 public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHasVisuals, IHasInteracters, //
 		IOnCollisionComputedListener, IOnCollisionListener {
@@ -37,14 +36,14 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 	protected BasicV2PlayerInput motprov;
 	protected MovingBox hitbox;
 	protected PlayerInteracter interacter = new PlayerInteracter(this);
+	////////////////
+	//protected Rectangle visualhitbox;
 
 	public PlayerEntityV3(StageContext nscontext) {
 		this.scontext = nscontext;
 
 		this.motprov = new BasicV2PlayerInput(scontext.getInputE());
-		this.hitbox = new MovingBox(0, 0, 20// * Room.simscale
-				, 17// *Room.simscale
-				, this.motprov, this, this);
+		this.hitbox = new MovingBox(0, 0, 20, 17, this.motprov, this, this);
 		this.mod = new HitBoxBasedModifier(this.hitbox, new IPoint.Point(0, 0), 0);
 
 		// TODO a externaliser en fichier de conf
@@ -60,11 +59,13 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 				new LoopingAnimation(getImages2("stages/type1/player_redbox/right_stand")));
 		this.visual1 = new MapGraphicEntity<>(new java.awt.Point(0, -23), PlayerVisualState.down_stand, e);
 		this.visual1.getPos().setModifier(mod);
+		//visualhitbox = new Rectangle(0, 0, 20, 17, java.awt.Color.GRAY);
+		//this.visualhitbox.getPos().setModifier(mod);
 	}
 
 	@Override
 	public void enter(Room room, Cardinal dir) {
-		Point newco = room.state.getDoorFront(dir, this.hitbox.getWH());
+		Point newco = room.state.getDoorFront(dir, this.hitbox.toInt().getWH());
 		this.hitbox.applyMotion();
 		this.hitbox.setX(newco.getX());
 		this.hitbox.setY(newco.getY());
@@ -81,9 +82,9 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 
 	public void onCollisionComputed(MovingBox box) {
 		this.mod.resetBeginning();
-		IVector vec = this.hitbox.getVec();
+		IFloatVector vec = this.hitbox.getVec();
 		boolean mov = false;
-		if (Geometry.abs(vec.getY()) > Geometry.abs(vec.getX())) {
+		if (Math.abs(vec.getY()) > Math.abs(vec.getX())) {
 			if (vec.getY() != 0) {
 				mov = true;
 				this.lastdir = (vec.getY() > 0) ? Cardinal.south : Cardinal.north;
@@ -120,5 +121,7 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 	@Override
 	public void forEachVisuals(Consumer<I2DRenderable> task) {
 		task.accept(this.visual1);
+		//task.accept(visualhitbox);
 	}
+
 }

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 
-import engine.game.defaultge.level.type1.Room;
 import engine.physic.basic2Dvectorial.HorizontalSegment;
 import engine.physic.basic2Dvectorial.VerticalSegment;
 import engine.save.room.type1.RoomState;

@@ -26,10 +26,9 @@ import engine.render.engine2d.renderable.MapGraphicEntity;
 import engine.render.misc.HitBoxBasedModifier;
 import main.events.DelayedEvent;
 import my.util.Cardinal;
-import my.util.Geometry;
 import my.util.geometry.IPoint;
-import my.util.geometry.IVector;
-import my.util.geometry.IVector.Vector;
+import my.util.geometry.floats.IFloatVector;
+import my.util.geometry.floats.IFloatVector.FloatVector;
 
 public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, //
 		IOnCollisionComputedListener, IOnCollisionListener, INextMotionProvider {
@@ -45,11 +44,7 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, //
 		room = nroom;
 		scontext = stage.scontext;
 
-		this.hitbox = new MovingBox(npt.getX() // * Room.simscale
-				, npt.getY() // * Room.simscale
-				, 20 // * Room.simscale
-				, 17 // * Room.simscale
-				, this, this, this);
+		this.hitbox = new MovingBox(npt.getX(), npt.getY(), 20, 17, this, this, this);
 		this.mod = new HitBoxBasedModifier(this.hitbox, new IPoint.Point(0, 0), 0);
 
 		EnumMap<PlayerVisualState, I2DRenderable> e = new EnumMap<>(PlayerVisualState.class);
@@ -87,9 +82,9 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, //
 
 	public void onCollisionComputed(MovingBox box) {
 		this.mod.resetBeginning();
-		IVector vec = this.hitbox.getVec();
+		IFloatVector vec = this.hitbox.getVec();
 		boolean mov = false;
-		if (Geometry.abs(vec.getY()) > Geometry.abs(vec.getX())) {
+		if (Math.abs(vec.getY()) > Math.abs(vec.getX())) {
 			if (vec.getY() != 0) {
 				mov = true;
 				this.lastdir = (vec.getY() > 0) ? Cardinal.south : Cardinal.north;
@@ -108,27 +103,25 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, //
 	protected INextMotionProvider mpstate = this::onMovingMotionProvider;
 
 	@Override
-	public Vector getNextMotionVector(MovingBox box) {
+	public FloatVector getNextMotionVector(MovingBox box) {
 		return mpstate.getNextMotionVector(box);
 	}
 
-	public Vector onWaitingMotionProvider(MovingBox box) {
+	public FloatVector onWaitingMotionProvider(MovingBox box) {
 
-		return new Vector(0, 0);
+		return new FloatVector(0, 0);
 	}
 
-	public Vector onMovingMotionProvider(MovingBox box) {
+	public FloatVector onMovingMotionProvider(MovingBox box) {
 		if (path == null) {
 			if (this.room != null) {
 				PathFinder pf = this.room.getPathfinder();
-				path = pf.getPathToRandomPointInWalkRange(this.hitbox, 200 // * Room.simscale
-				);
+				path = pf.getPathToRandomPointInWalkRange(this.hitbox.toOutInt(), 200);
 			}
-		}
-		if (path != null) {
-			path.checkStuckness(this.hitbox.getXY());
-			path.MoveToNextStepIfDone();
-			if (path.isDone()) {
+		}else {
+			path.checkStuckness(this.hitbox.toOutInt().getXY());
+			path.MoveToNextStepIfDone(this.hitbox.toOutInt());
+			if (path.isDone(this.hitbox.toOutInt())) {
 				this.mpstate = this::onWaitingMotionProvider;
 				//////////////////////////////////
 				scontext.getGcontext().EventE.chaotic
@@ -137,13 +130,12 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, //
 						}));
 				/////////////////////////////////////
 				this.path = null;
-				return new Vector(0, 0);
+				return new FloatVector(0, 0);
 			}
-			IVector vec = path.getShortTermVector(3 // * Room.simscale
-			);
-			return new Vector(vec.getX(), vec.getY());
+			IFloatVector vec = path.getShortTermVector(this.hitbox.toOutInt(),3);
+			return new FloatVector(vec.getX(), vec.getY());
 		}
-		return new Vector(0, 0);
+		return new FloatVector(0, 0);
 	}
 
 }

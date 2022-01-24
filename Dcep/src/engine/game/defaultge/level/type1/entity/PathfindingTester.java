@@ -18,8 +18,10 @@ import engine.render.engine2d.renderable.Rectangle;
 import engine.render.misc.HitBoxBasedModifier;
 import my.util.Cardinal;
 import my.util.geometry.IPoint;
+import my.util.geometry.IRectangle;
 import my.util.geometry.IVector;
-import my.util.geometry.IVector.Vector;
+import my.util.geometry.floats.IFloatVector;
+import my.util.geometry.floats.IFloatVector.FloatVector;
 
 public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHasCollidable, //
 		IOnCollisionComputedListener, IOnCollisionListener, IMotionProvider {
@@ -46,37 +48,38 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 	protected boolean done = false;
 
 	@Override
-	public Vector getNextMotionVector(MovingBox box) {
+	public FloatVector getNextMotionVector(MovingBox box) {
+		IRectangle intrec = hitbox.toInt();
 		if (done) {
-			return new Vector(0, 0);
+			return new FloatVector(0, 0);
 		}
 		this.think();
 		// Log.log(this, "path:" + path);
 		if (path != null) {
-			path.checkStuckness(this.hitbox.getXY());
-			path.MoveToNextStepIfDone();
+			path.checkStuckness(intrec.getXY());
+			path.MoveToNextStepIfDone(this.hitbox.toOutInt());
 			if (path.abort) {
 				this.visual.setColor(Color.BLACK);
 				this.done = true;
-				return new Vector(0, 0);
+				return new FloatVector(0, 0);
 			}
 
-			IVector unlimited = path.getCurrentVector();
-			this.nextonpath.getPos().getPos().move(this.hitbox.getX(), this.hitbox.getY());
+			IVector unlimited = path.getCurrentVector(this.hitbox.toOutInt());
+			this.nextonpath.getPos().getPos().move(intrec.getX(), intrec.getY());
 			this.nextonpath.getPos().getPos().translate(unlimited.getX(), unlimited.getY());
-			IVector vec = path.getShortTermVector(7);
-			return new Vector(vec.getX(), vec.getY());
+			IFloatVector vec = path.getShortTermVector(this.hitbox.toOutInt(),7);
+			return new FloatVector(vec.getX(), vec.getY());
 		}
-		return new Vector(0, 0);
+		return new FloatVector(0, 0);
 	}
 
 	public void think() {
-		if (path == null || path.isDone()) {
+		if (path == null || path.isDone(this.hitbox.toOutInt())) {
 			if (this.proom != null) {
 				PathFinder pf = this.proom.getPathfinder();
-				IPoint next = pf.getRandomPoint(this.hitbox);
+				IPoint next = pf.getRandomPoint(this.hitbox.toInt());
 				this.goal.getPos().setPos(new java.awt.Point(next.getX(), next.getY()));
-				path = pf.getPathFromTo(this.hitbox.getXY(), next, this.hitbox);
+				path = pf.getPathFromTo(this.hitbox.toInt().getXY(), next, this.hitbox.toInt());
 			}
 		}
 	}
@@ -95,7 +98,7 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 	@Override
 	public void enter(Room room, Cardinal dir) {
 		this.proom = room;
-		IPoint pt = room.getPathfinder().getRandomPoint(this.hitbox);
+		IPoint pt = room.getPathfinder().getRandomPoint(this.hitbox.toInt());
 		this.hitbox.setX(pt.getX());
 		this.hitbox.setY(pt.getY());
 	}

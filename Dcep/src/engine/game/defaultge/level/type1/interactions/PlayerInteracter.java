@@ -19,7 +19,7 @@ public class PlayerInteracter implements IInteracter {
 
 	@Override
 	public IRectangle getZone() {
-		return plr.getHitbox();
+		return plr.getHitbox().toInt();
 	}
 
 	public boolean isTryingToInteract() {
