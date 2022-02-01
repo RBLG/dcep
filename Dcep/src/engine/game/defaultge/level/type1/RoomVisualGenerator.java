@@ -45,7 +45,7 @@ public final class RoomVisualGenerator extends Room {
 				navtestcv.g.fill(tilre);
 				navtestcv.g.setColor(new Color(0x00FFFFFF));
 				// navtestcv.g.draw(tilre);
-				room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, new DevHollowRectangle(tilre, Color.white)));
+				room.visuals.add(new RoomVisual(DrawLayer.Game_Shader, new DevHollowRectangle(tilre, Color.white)));
 			}
 			room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, new StillImage(navtestcv.img, 0, 0)));
 			if (Boolean.FALSE) {
@@ -68,7 +68,7 @@ public final class RoomVisualGenerator extends Room {
 					navtestcv.g.setColor(new Color(0x00FFFFFF));
 					// navtestcv.g.draw(tilre);
 					room.visuals
-							.add(new RoomVisual(DrawLayer.Room_Shaders, new DevHollowRectangle(tilre, Color.yellow)));
+							.add(new RoomVisual(DrawLayer.Game_Shader, new DevHollowRectangle(tilre, Color.yellow)));
 				}
 				room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, new StillImage(navtestcv.img, 0, 0)));
 			}
