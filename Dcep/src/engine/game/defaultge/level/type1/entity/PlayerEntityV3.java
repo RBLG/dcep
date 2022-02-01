@@ -10,22 +10,33 @@ import engine.entityfw.components.IHasInteracters;
 import engine.entityfw.components.IHasVisuals;
 import engine.game.defaultge.level.type1.Room;
 import engine.game.defaultge.level.type1.StageContext;
+import engine.game.defaultge.level.type1.attacks.AttackGroup;
+import engine.game.defaultge.level.type1.attacks.PlayerTestAttack;
 import engine.game.defaultge.level.type1.interactions.PlayerInteracter;
 import engine.physic.basic2DInteractionV3.IInteracter;
+import engine.physic.basic2Dattacks.IAttackable;
+import engine.physic.basic2Dattacks.IAttacker;
+import engine.physic.basic2Dattacks.IHasAttackables;
+import engine.physic.basic2Dattacks.IHasAttackers;
 import engine.physic.basic2Dvectorial.MovingBox;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionComputedListener;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionListener;
 import engine.physic.basic2Dvectorial.motionprovider.BasicV2PlayerInput;
+import engine.render.engine2d.renderable.Animation;
 import engine.render.engine2d.renderable.I2DRenderable;
 import engine.render.engine2d.renderable.LoopingAnimation;
 import engine.render.engine2d.renderable.MapGraphicEntity;
 import engine.render.misc.HitBoxBasedModifier;
 import my.util.Cardinal;
+import my.util.Log;
 import my.util.geometry.IPoint;
 import my.util.geometry.IPoint.Point;
+import my.util.geometry.IRectangle;
 import my.util.geometry.floats.IFloatVector;
 
-public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHasVisuals, IHasInteracters, //
+public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHasVisuals, //
+		IHasInteracters, IHasAttackers, IHasAttackables, //
+		IAttackable, //
 		IOnCollisionComputedListener, IOnCollisionListener {
 	public static final int visualsizex = 50;
 	public static final int visualsizey = 90;
@@ -37,7 +48,7 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 	protected MovingBox hitbox;
 	protected PlayerInteracter interacter = new PlayerInteracter(this);
 	////////////////
-	//protected Rectangle visualhitbox;
+	// protected Rectangle visualhitbox;
 
 	public PlayerEntityV3(StageContext nscontext) {
 		this.scontext = nscontext;
@@ -59,8 +70,8 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 				new LoopingAnimation(getImages2("stages/type1/player_redbox/right_stand")));
 		this.visual1 = new MapGraphicEntity<>(new java.awt.Point(0, -23), PlayerVisualState.down_stand, e);
 		this.visual1.getPos().setModifier(mod);
-		//visualhitbox = new Rectangle(0, 0, 20, 17, java.awt.Color.GRAY);
-		//this.visualhitbox.getPos().setModifier(mod);
+		// visualhitbox = new Rectangle(0, 0, 20, 17, java.awt.Color.GRAY);
+		// this.visualhitbox.getPos().setModifier(mod);
 	}
 
 	@Override
@@ -69,7 +80,8 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 		this.hitbox.applyMotion();
 		this.hitbox.setX(newco.getX());
 		this.hitbox.setY(newco.getY());
-		// TODO deplacer pour re generaliser la gestion du point d'entree
+		// TODO deplacer pour re generaliser (a toutes les entités) la gestion du point
+		// d'entree
 	}
 
 	@Override
@@ -81,6 +93,7 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 	protected Cardinal lastdir = Cardinal.south;
 
 	public void onCollisionComputed(MovingBox box) {
+		PlayerVisualState last = visual1.getKey();
 		this.mod.resetBeginning();
 		IFloatVector vec = this.hitbox.getVec();
 		boolean mov = false;
@@ -95,7 +108,11 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 				this.lastdir = (vec.getX() > 0) ? Cardinal.east : Cardinal.west;
 			}
 		}
-		this.visual1.set(PlayerVisualState.concat(mov, this.lastdir));
+		PlayerVisualState state = PlayerVisualState.concat(mov, this.lastdir);
+		this.visual1.set(state);
+		if (last != state) {
+			((Animation) this.visual1.get(state)).setBeginning(System.currentTimeMillis());
+		}
 	}
 
 	@Override
@@ -121,7 +138,30 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 	@Override
 	public void forEachVisuals(Consumer<I2DRenderable> task) {
 		task.accept(this.visual1);
-		//task.accept(visualhitbox);
+		// task.accept(visualhitbox);
+	}
+
+	protected PlayerTestAttack attacker = new PlayerTestAttack(this);
+
+	@Override
+	public void forEachAttacker(Consumer<IAttacker> task) {
+		task.accept(attacker);
+	}
+
+	@Override
+	public void forEachAttackables(Consumer<IAttackable> task) {
+		task.accept(this);
+	}
+
+	public void receiveAttack(Enum<?> group, int dmg, Object effect) { // ameliorer la gestion des group d'attaque
+		if (group.equals(AttackGroup.any) || group.equals(AttackGroup.player)) {
+			Log.e("aie");
+		}
+	}
+
+	@Override
+	public IRectangle getZone() {
+		return this.hitbox.toInt();
 	}
 
 }

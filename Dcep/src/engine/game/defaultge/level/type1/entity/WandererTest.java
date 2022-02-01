@@ -13,6 +13,8 @@ import engine.game.defaultge.level.type1.GameTick;
 import engine.game.defaultge.level.type1.Room;
 import engine.game.defaultge.level.type1.StageContext;
 import engine.game.defaultge.level.type1.StageType1;
+import engine.physic.basic2Dattacks.IAttackable;
+import engine.physic.basic2Dattacks.IHasAttackables;
 import engine.physic.basic2Dvectorial.MovingBox;
 import engine.physic.basic2Dvectorial.MovingBox.INextMotionProvider;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionComputedListener;
@@ -26,11 +28,14 @@ import engine.render.engine2d.renderable.MapGraphicEntity;
 import engine.render.misc.HitBoxBasedModifier;
 import main.events.DelayedEvent;
 import my.util.Cardinal;
+import my.util.Gauge;
 import my.util.geometry.IPoint;
+import my.util.geometry.IRectangle;
 import my.util.geometry.floats.IFloatVector;
 import my.util.geometry.floats.IFloatVector.FloatVector;
 
-public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, //
+public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHasAttackables, //
+		IAttackable, //
 		IOnCollisionComputedListener, IOnCollisionListener, INextMotionProvider {
 
 	protected MapGraphicEntity<PlayerVisualState> visual1;
@@ -118,7 +123,7 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, //
 				PathFinder pf = this.room.getPathfinder();
 				path = pf.getPathToRandomPointInWalkRange(this.hitbox.toOutInt(), 200);
 			}
-		}else {
+		} else {
 			path.checkStuckness(this.hitbox.toOutInt().getXY());
 			path.MoveToNextStepIfDone(this.hitbox.toOutInt());
 			if (path.isDone(this.hitbox.toOutInt())) {
@@ -132,10 +137,36 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, //
 				this.path = null;
 				return new FloatVector(0, 0);
 			}
-			IFloatVector vec = path.getShortTermVector(this.hitbox.toOutInt(),3);
+			IFloatVector vec = path.getShortTermVector(this.hitbox.toOutInt(), 3);
 			return new FloatVector(vec.getX(), vec.getY());
 		}
 		return new FloatVector(0, 0);
+	}
+
+	@Override
+	public void forEachAttackables(Consumer<IAttackable> task) {
+		task.accept(this);
+	}
+
+	@Override
+	public IRectangle getZone() {
+		return this.hitbox.toInt();
+	}
+
+	protected Gauge hp = new Gauge(0, 100, 100);
+
+	@Override
+	public void receiveAttack(Enum<?> group, int dmg, Object effect) {
+		hp.substract(dmg);
+		if (hp.get() <= 0) {
+			this.die();
+		}
+	}
+
+	protected void die() {
+		scontext.getGcontext().EventE.cleanup.add((time) -> {
+			room.getEWS().remove(this);
+		});
 	}
 
 }

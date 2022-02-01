@@ -15,6 +15,8 @@ import engine.game.defaultge.level.type1.entity.WandererTest;
 import engine.game.defaultge.level.type1.interactions.RoomInteractableHaver;
 import engine.game.defaultge.level.type1.entity.IRoomTraverserEntity;
 import engine.physic.basic2DInteractionV3.InteractionESS;
+import engine.physic.basic2Dattacks.AttackESS;
+import engine.physic.basic2Dattacks.IHasAttackables;
 import engine.physic.basic2Dvectorial.CollisionESS;
 import engine.physic.basic2Dvectorial.ISegment;
 import engine.physic.basic2Dvectorial.pathfinding.PathFinder;
@@ -33,8 +35,8 @@ public class Room {
 	public final static int rosizey = Basic2DSub.LDymax;
 	public final static int rosizex = Basic2DSub.LDxmax;
 	//////////////////////////////////////////////////////////////
-	public static final int simscale = 1000; //emplacement temporaire
-	
+	public static final int simscale = 1000; // emplacement temporaire
+
 	protected Scene scene;
 	public RoomState state;
 	public EnumMap<Side, Door> doors;
@@ -70,6 +72,9 @@ public class Room {
 		EntitySubscriber<IHasInteractables> interactables = new EntitySubscriber<>(IHasInteractables.class);
 		this.ews.add(interactables);
 		this.ews.add(new InteractionESS(interactables));
+		EntitySubscriber<IHasAttackables> attackables = new EntitySubscriber<>(IHasAttackables.class);
+		this.ews.add(attackables);
+		this.ews.add(new AttackESS(attackables));
 
 		// a la fin de l'instantiation des ess (au cas ou j'ai envie d'en ajouter plus)
 		this.ews.add(this.interactables);
@@ -135,6 +140,10 @@ public class Room {
 	public void render(I2DRenderer r, Graphics g, long time, double scx, double scy) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public EntityWackSystem getEWS() {
+		return this.ews;
 	}
 
 }
