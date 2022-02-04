@@ -57,4 +57,16 @@ public class HitBoxBasedModifier implements IMotionModifier {
 		return prog / duration;
 	}
 
+	@Override
+	public void notifyApplyance() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isApplied() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

@@ -4,9 +4,9 @@ import engine.game.IGameEngine;
 import engine.game.defaultge.level.IStageEngine;
 import engine.input.IInputEngine;
 import engine.render.engine2d.Basic2DEngine;
-import engine.render.engine2d.DrawLayer;
-import engine.render.engine2d.Scene;
-import engine.render.engine2d.renderable.I2DRenderable;
+import engine.render.engine2d.IRenderableNode;
+import engine.render.engine2d.RenderableList;
+import engine.render.engine2d.SceneV2;
 import engine.save.Constants;
 import engine.save.ISaveEngine;
 import main.EventCore;
@@ -50,10 +50,12 @@ public class DefaultGameEngine implements IGameEngine {
 	}
 
 	public void startDefaultLoop(IStageEngine stage) {
-		Scene scene = new Scene();
+		SceneV2 scene = new SceneV2();
+		RenderableList list = new RenderableList();
+		scene.setRoot(list);
+		list.get().add((IRenderableNode) stage);
 		gcontext.renderE.setScene(scene);
-		scene.add((I2DRenderable) stage, DrawLayer.Game_Shader);
-		
+
 		EventCore core = gcontext.EventE;
 		core.regular.add((IEvent) stage);
 		// core.regular.add(gcontext.renderE);

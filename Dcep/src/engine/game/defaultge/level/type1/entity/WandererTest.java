@@ -22,7 +22,7 @@ import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionListener;
 import engine.physic.basic2Dvectorial.motionprovider.BasicV2PlayerInput;
 import engine.physic.basic2Dvectorial.pathfinding.Path;
 import engine.physic.basic2Dvectorial.pathfinding.PathFinder;
-import engine.render.engine2d.renderable.I2DRenderable;
+import engine.render.engine2d.I2DRenderable;
 import engine.render.engine2d.renderable.LoopingAnimation;
 import engine.render.engine2d.renderable.MapGraphicEntity;
 import engine.render.misc.HitBoxBasedModifier;

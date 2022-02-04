@@ -13,7 +13,7 @@ import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionListener;
 import engine.physic.basic2Dvectorial.motionprovider.IMotionProvider;
 import engine.physic.basic2Dvectorial.pathfinding.Path;
 import engine.physic.basic2Dvectorial.pathfinding.PathFinder;
-import engine.render.engine2d.renderable.I2DRenderable;
+import engine.render.engine2d.I2DRenderable;
 import engine.render.engine2d.renderable.Rectangle;
 import engine.render.misc.HitBoxBasedModifier;
 import my.util.Cardinal;

@@ -11,17 +11,21 @@ import engine.game.defaultge.level.type1.entity.PlayerEntityV3;
 import engine.game.defaultge.level.type1.states.DungeonCrawlingState;
 import engine.misc.util2d.position.IMotionModifier;
 import engine.misc.util2d.position.PrecisionModifier;
-import engine.render.engine2d.Scene;
-import engine.render.engine2d.renderable.I2DRenderer;
+import engine.render.engine2d.I2DRenderer;
+import engine.render.engine2d.IRenderableNode;
+import engine.render.engine2d.RenderableList;
+import engine.render.engine2d.SceneV2;
 import engine.render.engine2d.renderable.I2DSimpleRenderable;
+import engine.render.engine2d.renderable.Scene;
 import engine.state.prototype2.State;
 import engine.state.prototype2.StateCore;
 import main.events.StepEvent;
 import my.util.Cardinal;
 import my.util.Keys;
 import my.util.Log;
+import my.util.geometry.IPoint;
 
-public class StageType1 extends StageEngine implements I2DSimpleRenderable {
+public class StageType1 extends StageEngine implements IRenderableNode {
 
 	protected Room[][] floor;
 	public Point current = new Point(StageGenerator.fcentx, StageGenerator.fcenty);
@@ -31,7 +35,7 @@ public class StageType1 extends StageEngine implements I2DSimpleRenderable {
 	public StageContext scontext;
 
 	// public Scene topscene = new Scene();
-	public Scene scene = new Scene();
+	public RenderableList scene = new RenderableList();
 
 	public StateCore guifsm = new StateCore();
 
@@ -65,7 +69,7 @@ public class StageType1 extends StageEngine implements I2DSimpleRenderable {
 
 	public void moveRoom(Cardinal dir) {
 		State betweenroom = new State(null, (r, g, time, scx, scy) -> {
-			this.scene.render(r, g, time, scx, scy);
+			this.scene.render(r, g, time);
 		});
 		/////////////////////////// RN////////////
 		Room pre = this.getCurrent();
@@ -113,7 +117,7 @@ public class StageType1 extends StageEngine implements I2DSimpleRenderable {
 		int pmx = -x * StageGenerator.cyclex;
 		int pmy = -y * StageGenerator.cycley;
 		PrecisionModifier nmod = new PrecisionModifier(time, now, pmx, pmy);
-		this.scene.getPos().setModifier(nmod);
+		this.scene.setModifier(nmod);
 	}
 
 	@Override
@@ -130,8 +134,14 @@ public class StageType1 extends StageEngine implements I2DSimpleRenderable {
 	}
 
 	@Override
-	public void render(I2DRenderer r, Graphics g, long time, double scx, double scy) {
+	public IPoint updateRefs(IPoint nori, I2DRenderer renderer) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void prepare(SceneV2 scene, IPoint nori, I2DRenderer renderer) {
 		// this.topscene.render(r, g, time, scx, scy);
-		this.guifsm.render(r, g, time, scx, scy);
+		guifsm.prepare(scene, guifsm.updateRefs(nori, renderer), renderer);
 	}
 }
