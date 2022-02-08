@@ -1,6 +1,5 @@
 package engine.game.defaultge.level.type1;
 
-import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.EnumMap;
 
@@ -21,23 +20,21 @@ import engine.physic.basic2Dvectorial.CollisionESS;
 import engine.physic.basic2Dvectorial.ISegment;
 import engine.physic.basic2Dvectorial.pathfinding.PathFinder;
 import engine.render.engine2d.Basic2DSub;
-import engine.render.engine2d.DrawLayer;
-import engine.render.engine2d.Scene;
-import engine.render.engine2d.renderable.I2DRenderer;
+import engine.render.engine2d.RenderableList;
+import engine.render.engine2d.temp.ITreeNodeRenderable;
 import engine.save.room.type1.RoomState;
 import engine.save.room.type1.Side;
 import engine.save.room.type1.RoomState.Door;
 import my.util.Cardinal;
 import my.util.geometry.IRectangle;
 
-public class Room {
+public class Room implements ITreeNodeRenderable {
 	//////////////////////////////////////////////////////////////
 	public final static int rosizey = Basic2DSub.LDymax;
 	public final static int rosizex = Basic2DSub.LDxmax;
 	//////////////////////////////////////////////////////////////
-	public static final int simscale = 1000; // emplacement temporaire
 
-	protected Scene scene;
+	protected RenderableList scene;
 	public RoomState state;
 	public EnumMap<Side, Door> doors;
 	public EnumMap<Cardinal, ArrayList<ISegment>> walls;
@@ -58,7 +55,7 @@ public class Room {
 	 */
 	public Room(StageType1 stage, int offsetx, int offsety, ArrayList<RoomState> pool, DoorType[] ndoors) {
 		this.ews = new EntityWackSystem();
-		this.scene = new Scene(offsetx, offsety);
+		this.scene = new RenderableList(offsetx, offsety);
 
 		// TODO rework pour que les generators ne modifie pas directement Room, c'est
 		// pas lisible
@@ -68,7 +65,7 @@ public class Room {
 
 		this.ews.add(new CollisionESS(walls));
 		this.ews.add(visualess);
-		this.scene.add(this.visualess, DrawLayer.Room_Entities);
+		this.scene.add(this.visualess);
 		EntitySubscriber<IHasInteractables> interactables = new EntitySubscriber<>(IHasInteractables.class);
 		this.ews.add(interactables);
 		this.ews.add(new InteractionESS(interactables));
@@ -81,8 +78,9 @@ public class Room {
 		this.ews.add(
 				new WandererTest(stage, this, this.pathfinder.getRandomPoint(new IRectangle.Rectangle(0, 0, 20, 17))));
 
+		scene.setVisible(false);
 		for (RoomVisual vis : visuals) {
-			this.scene.add(vis.rd, vis.lay);
+			this.scene.add(vis.rd);
 		}
 //		for (ArrayList<ISegment> segs : state.walls.values()) {
 //			for (ISegment seg : segs) {
@@ -99,8 +97,6 @@ public class Room {
 	 * @param dir
 	 */
 	public void playerEnter(Cardinal dir, PlayerEntityV3 ent) {
-		// ent.setScene(this.scene);
-		// ent.loadVisual();
 		this.enter(dir, ent);
 
 		// this.ews.onStart();
@@ -129,21 +125,17 @@ public class Room {
 		this.ews.run(time);
 	}
 
-	public Scene getScene() {
-		return this.scene;
-	}
-
 	public PathFinder getPathfinder() {
 		return pathfinder;
 	}
 
-	public void render(I2DRenderer r, Graphics g, long time, double scx, double scy) {
-		// TODO Auto-generated method stub
-
-	}
-
 	public EntityWackSystem getEWS() {
 		return this.ews;
+	}
+
+	@Override
+	public void prepare(IWaitlist wt, int res, long time, double px, double py, double vx, double vy) {
+		this.scene.prepare(wt, res, time, px, py, vx, vy);
 	}
 
 }

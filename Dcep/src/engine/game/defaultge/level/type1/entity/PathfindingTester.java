@@ -13,6 +13,7 @@ import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionListener;
 import engine.physic.basic2Dvectorial.motionprovider.IMotionProvider;
 import engine.physic.basic2Dvectorial.pathfinding.Path;
 import engine.physic.basic2Dvectorial.pathfinding.PathFinder;
+import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.renderable.I2DRenderable;
 import engine.render.engine2d.renderable.Rectangle;
 import engine.render.misc.HitBoxBasedModifier;
@@ -30,16 +31,16 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 	protected Room proom;
 	protected HitBoxBasedModifier mod;
 	protected StageType1 stage;
-	protected Rectangle visual = new Rectangle(0, 0, 20, 17, Color.YELLOW);
-	protected Rectangle goal = new Rectangle(0, 0, 3, 3, Color.red);
-	protected Rectangle nextonpath = new Rectangle(0, 0, 20, 17, new Color(255, 100, 0, 170));
+	protected Rectangle visual = new Rectangle(0, 0, 20, 17, Color.YELLOW, DrawLayer.Room_Entities);
+	protected Rectangle goal = new Rectangle(0, 0, 3, 3, Color.red, DrawLayer.Room_Entities);
+	protected Rectangle nextonpath = new Rectangle(0, 0, 20, 17, new Color(255, 100, 0, 170), DrawLayer.Room_Entities);
 
 	public PathfindingTester(StageType1 nstage) {
 
 		stage = nstage;
 		hitbox = new MovingBox(0, 0, 20, 17, this, this, this);
 		mod = new HitBoxBasedModifier(this.hitbox, new IPoint.Point(0, 0), 0);
-		this.visual.getPos().setModifier(mod);
+		this.visual.setModifier(mod);
 
 		this.hitbox.setChaotic(false);
 	}
@@ -65,9 +66,8 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 			}
 
 			IVector unlimited = path.getCurrentVector(this.hitbox.toOutInt());
-			this.nextonpath.getPos().getPos().move(intrec.getX(), intrec.getY());
-			this.nextonpath.getPos().getPos().translate(unlimited.getX(), unlimited.getY());
-			IFloatVector vec = path.getShortTermVector(this.hitbox.toOutInt(),7);
+			this.nextonpath.setPos(intrec.getX() + unlimited.getX(), intrec.getY() + unlimited.getY());
+			IFloatVector vec = path.getShortTermVector(this.hitbox.toOutInt(), 7);
 			return new FloatVector(vec.getX(), vec.getY());
 		}
 		return new FloatVector(0, 0);
@@ -78,7 +78,7 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 			if (this.proom != null) {
 				PathFinder pf = this.proom.getPathfinder();
 				IPoint next = pf.getRandomPoint(this.hitbox.toInt());
-				this.goal.getPos().setPos(new java.awt.Point(next.getX(), next.getY()));
+				this.goal.setPos(next.getX(), next.getY());
 				path = pf.getPathFromTo(this.hitbox.toInt().getXY(), next, this.hitbox.toInt());
 			}
 		}

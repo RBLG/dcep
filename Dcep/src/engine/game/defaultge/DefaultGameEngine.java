@@ -4,8 +4,7 @@ import engine.game.IGameEngine;
 import engine.game.defaultge.level.IStageEngine;
 import engine.input.IInputEngine;
 import engine.render.engine2d.Basic2DEngine;
-import engine.render.engine2d.DrawLayer;
-import engine.render.engine2d.Scene;
+import engine.render.engine2d.RenderableList;
 import engine.render.engine2d.renderable.I2DRenderable;
 import engine.save.Constants;
 import engine.save.ISaveEngine;
@@ -50,16 +49,15 @@ public class DefaultGameEngine implements IGameEngine {
 	}
 
 	public void startDefaultLoop(IStageEngine stage) {
-		Scene scene = new Scene();
+		RenderableList scene = new RenderableList();
 		gcontext.renderE.setScene(scene);
-		scene.add((I2DRenderable) stage, DrawLayer.Game_Shader);
-		
+		scene.add((I2DRenderable) stage);
+
 		EventCore core = gcontext.EventE;
 		core.regular.add((IEvent) stage);
-		// core.regular.add(gcontext.renderE);
 		core.regular.add((IEvent) gcontext.inputE);
-		// gcontext.renderE.startRendering();
-		// gcontext.renderE.stopRendering();
+		// core.regular.add(gcontext.renderE);
+		// gcontext.renderE.panel.setUpdated(true);
 		core.start(Constants.millis_between_game_ticks);
 	}
 

@@ -47,7 +47,8 @@ public final class RoomVisualGenerator extends Room {
 				// navtestcv.g.draw(tilre);
 				room.visuals.add(new RoomVisual(DrawLayer.Game_Shader, new DevHollowRectangle(tilre, Color.white)));
 			}
-			room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, new StillImage(navtestcv.img, 0, 0)));
+			room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders,
+					new StillImage(navtestcv.img, 0, 0, DrawLayer.Room_Shaders)));
 			if (Boolean.FALSE) {
 				/////////////////////////////////////////////////////////
 				ResizedNavigationMesh test = room.pathfinder.getCache()
@@ -70,7 +71,8 @@ public final class RoomVisualGenerator extends Room {
 					room.visuals
 							.add(new RoomVisual(DrawLayer.Game_Shader, new DevHollowRectangle(tilre, Color.yellow)));
 				}
-				room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, new StillImage(navtestcv.img, 0, 0)));
+				room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders,
+						new StillImage(navtestcv.img, 0, 0, DrawLayer.Room_Shaders)));
 			}
 		}
 

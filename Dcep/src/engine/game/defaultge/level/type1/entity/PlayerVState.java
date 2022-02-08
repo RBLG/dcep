@@ -2,10 +2,10 @@ package engine.game.defaultge.level.type1.entity;
 
 import my.util.Cardinal;
 
-public enum PlayerVisualState {
+public enum PlayerVState {
 	up_move, down_move, left_move, right_move, up_stand, down_stand, left_stand, right_stand;
 
-	public static PlayerVisualState concat(boolean mov, Cardinal dir) {
+	public static PlayerVState concat(boolean mov, Cardinal dir) {
 		switch (dir) {
 		case north:
 			return (mov) ? up_move : up_stand;

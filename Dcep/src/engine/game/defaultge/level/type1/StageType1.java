@@ -1,7 +1,5 @@
 package engine.game.defaultge.level.type1;
 
-import java.awt.Graphics;
-import java.awt.Point;
 import engine.game.defaultge.DefaultGameEngine;
 import engine.game.defaultge.GameContext;
 import engine.game.defaultge.level.IStageEngine;
@@ -10,18 +8,20 @@ import engine.game.defaultge.level.type1.entity.PathfindingTester;
 import engine.game.defaultge.level.type1.entity.PlayerEntityV3;
 import engine.game.defaultge.level.type1.states.DungeonCrawlingState;
 import engine.misc.util2d.position.IMotionModifier;
+import engine.misc.util2d.position.NoModifier;
 import engine.misc.util2d.position.PrecisionModifier;
-import engine.render.engine2d.Scene;
-import engine.render.engine2d.renderable.I2DRenderer;
-import engine.render.engine2d.renderable.I2DSimpleRenderable;
+import engine.render.engine2d.RenderableList;
+import engine.render.engine2d.temp.ITreeNodeRenderable;
 import engine.state.prototype2.State;
 import engine.state.prototype2.StateCore;
 import main.events.StepEvent;
 import my.util.Cardinal;
 import my.util.Keys;
 import my.util.Log;
+import my.util.geometry.IPoint;
+import my.util.geometry.IPoint.Point;
 
-public class StageType1 extends StageEngine implements I2DSimpleRenderable {
+public class StageType1 extends StageEngine implements ITreeNodeRenderable {
 
 	protected Room[][] floor;
 	public Point current = new Point(StageGenerator.fcentx, StageGenerator.fcenty);
@@ -31,7 +31,7 @@ public class StageType1 extends StageEngine implements I2DSimpleRenderable {
 	public StageContext scontext;
 
 	// public Scene topscene = new Scene();
-	public Scene scene = new Scene();
+	public RenderableList scene = new RenderableList();
 
 	public StateCore guifsm = new StateCore();
 
@@ -47,6 +47,9 @@ public class StageType1 extends StageEngine implements I2DSimpleRenderable {
 		this.player = new PlayerEntityV3(scontext);
 
 		guifsm.add(new DungeonCrawlingState(this));
+		scene.add((ITreeNodeRenderable) (wt, res, time, px, py, vx, vy) -> {
+			getCurrent().prepare(wt, res, time, px, py, vx, vy);
+		});
 	}
 
 	@Override
@@ -56,7 +59,7 @@ public class StageType1 extends StageEngine implements I2DSimpleRenderable {
 
 	@Override
 	public void start(DefaultGameEngine ge) {
-		// this.scene.setVisible(true);
+		this.scene.setVisible(true);
 		this.setCamOnRoom(this.current.x, this.current.y);
 
 		this.getCurrent().playerEnter(Cardinal.north, this.player);
@@ -64,9 +67,7 @@ public class StageType1 extends StageEngine implements I2DSimpleRenderable {
 	}
 
 	public void moveRoom(Cardinal dir) {
-		State betweenroom = new State(null, (r, g, time, scx, scy) -> {
-			this.scene.render(r, g, time, scx, scy);
-		});
+
 		/////////////////////////// RN////////////
 		Room pre = this.getCurrent();
 		int mx = dir.toXMultiplier();
@@ -75,11 +76,14 @@ public class StageType1 extends StageEngine implements I2DSimpleRenderable {
 			Log.log(this, "mur mangé");
 			return;
 		}
-		this.guifsm.add(betweenroom);
 		this.current.x += mx;
 		this.current.y += my;
 
 		Room post = this.getCurrent();
+		State betweenroom = new State(null, (ITreeNodeRenderable) (wt, res, time, px, py, vx, vy) -> {
+			this.scene.prepare(wt, res, time, px, py, vx, vy);
+		});
+		this.guifsm.add(betweenroom);
 		this.moveCamByOffset(mx, my, 600);
 		//////////////// ENTRE L'ENTRE ET SORTIE/////////
 		StepEvent.start().then(GameTick.fromMillis(300), (long time) -> { // était à 300ms
@@ -90,6 +94,8 @@ public class StageType1 extends StageEngine implements I2DSimpleRenderable {
 		}).then(GameTick.fromMillis(350), (long time) -> { // était a 650ms
 			/////////////// FIN////////////////////
 			this.guifsm.removeFrom(betweenroom);
+			this.setCamOnRoom(current.x, current.y);
+			this.scene.setModifier(new NoModifier());
 		}).endAndUse((ev) -> scontext.gcontext.EventE.chaotic.add(ev));
 	}
 
@@ -98,22 +104,19 @@ public class StageType1 extends StageEngine implements I2DSimpleRenderable {
 	}
 
 	public void setCamOnRoom(int x, int y) {
-		Point pos = this.scene.getPos().getPos();
-		pos.x = -x * StageGenerator.cyclex;
-		pos.y = -y * StageGenerator.cycley;
+		scene.setPos(-x * StageGenerator.cyclex, -y * StageGenerator.cycley);
 	}
 
 	public void moveCamByOffset(int x, int y, long time) {
-		IMotionModifier omod = this.scene.getPos().getModifier();
+		IMotionModifier omod = this.scene.getModifier();
 		long end = omod.getMaxTime();
-		Point pos = this.scene.getPos().getPos();
-		pos.x += (int) omod.getModX(end);
-		pos.y += (int) omod.getModY(end);
+		IPoint pos = this.scene.getPos();
+		scene.setPos(pos.getX() + (int) omod.getModX(end), pos.getY() + (int) omod.getModY(end));
 		long now = System.currentTimeMillis();
 		int pmx = -x * StageGenerator.cyclex;
 		int pmy = -y * StageGenerator.cycley;
 		PrecisionModifier nmod = new PrecisionModifier(time, now, pmx, pmy);
-		this.scene.getPos().setModifier(nmod);
+		this.scene.setModifier(nmod);
 	}
 
 	@Override
@@ -130,8 +133,9 @@ public class StageType1 extends StageEngine implements I2DSimpleRenderable {
 	}
 
 	@Override
-	public void render(I2DRenderer r, Graphics g, long time, double scx, double scy) {
+
+	public void prepare(IWaitlist wt, int res, long time, double px, double py, double vx, double vy) {
 		// this.topscene.render(r, g, time, scx, scy);
-		this.guifsm.render(r, g, time, scx, scy);
+		this.guifsm.prepare(wt, res, time, px, py, vx, vy);
 	}
 }

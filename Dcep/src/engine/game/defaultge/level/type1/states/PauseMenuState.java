@@ -1,10 +1,8 @@
 package engine.game.defaultge.level.type1.states;
 
-import java.awt.Graphics;
-
 import engine.game.defaultge.level.type1.StageType1;
 import engine.render.engine2d.Basic2DSub;
-import engine.render.engine2d.renderable.I2DRenderer;
+import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.renderable.Rectangle;
 import engine.state.prototype2.IState;
 import my.util.Keys;
@@ -19,7 +17,7 @@ public class PauseMenuState implements IState {
 	public PauseMenuState(StageType1 nstage) {
 		stage = nstage;
 		Color col = new Color(0, 0, 0, 100);
-		filter = new Rectangle(0, 0, Basic2DSub.LDxmax, Basic2DSub.LDymax, col);
+		filter = new Rectangle(0, 0, Basic2DSub.LDxmax, Basic2DSub.LDymax, col, DrawLayer.Menu);
 	}
 
 	@Override
@@ -30,8 +28,8 @@ public class PauseMenuState implements IState {
 	}
 
 	@Override
-	public void render(I2DRenderer r, Graphics g, long time, double scx, double scy) {
-		stage.scene.render(r, g, time, scx, scy);
-		filter.render(r, g, time, scx, scy);
+	public void prepare(IWaitlist wt, int res, long time, double px, double py, double vx, double vy) {
+		stage.scene.prepare(wt, res, time, px, py, vx, vy);;
+		filter.prepare(wt, res, time, px, py, vx, vy);;
 	}
 }

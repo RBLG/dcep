@@ -47,12 +47,12 @@ public final class RoomGenerator extends Room {
 			}
 			open = doors[door.side.ordinal()] != DoorType.wall;
 			if (open) {
-				Rectangle rec = new Rectangle(x, y, wi, he, Color.blue);
-				r.scene.add(rec, DrawLayer.Room_Walls);
+				Rectangle rec = new Rectangle(x, y, wi, he, Color.blue, DrawLayer.Room_Walls);
+				r.scene.add(rec);
 				r.interactables.getInteractables().add(new DoorInteractable(door, x, y, wi, he));
 			} else {
-				Rectangle rec = new Rectangle(x, y, wi, he, Color.cyan);
-				r.scene.add(rec, DrawLayer.Room_Walls);
+				Rectangle rec = new Rectangle(x, y, wi, he, Color.cyan, DrawLayer.Room_Walls);
+				r.scene.add(rec);
 			}
 		}
 		r.state = roomstate;
