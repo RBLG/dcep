@@ -47,9 +47,6 @@ public class StageType1 extends StageEngine implements ITreeNodeRenderable {
 		this.player = new PlayerEntityV3(scontext);
 
 		guifsm.add(new DungeonCrawlingState(this));
-		scene.add((ITreeNodeRenderable) (wt, res, time, px, py, vx, vy) -> {
-			getCurrent().prepare(wt, res, time, px, py, vx, vy);
-		});
 	}
 
 	@Override
@@ -109,7 +106,7 @@ public class StageType1 extends StageEngine implements ITreeNodeRenderable {
 
 	public void moveCamByOffset(int x, int y, long time) {
 		IMotionModifier omod = this.scene.getModifier();
-		long end = omod.getMaxTime();
+		long end = (long) omod.getMaxTime();
 		IPoint pos = this.scene.getPos();
 		scene.setPos(pos.getX() + (int) omod.getModX(end), pos.getY() + (int) omod.getModY(end));
 		long now = System.currentTimeMillis();

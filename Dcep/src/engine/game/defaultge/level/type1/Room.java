@@ -98,9 +98,6 @@ public class Room implements ITreeNodeRenderable {
 	 */
 	public void playerEnter(Cardinal dir, PlayerEntityV3 ent) {
 		this.enter(dir, ent);
-
-		// this.ews.onStart();
-		// this.inter.add(InteractionLayer.action, ent.getActionBox());
 		this.scene.setVisible(true);
 
 	}
@@ -113,7 +110,7 @@ public class Room implements ITreeNodeRenderable {
 
 	public void playerLeave(PlayerEntityV3 ent) {
 		this.leave(ent);
-		// this.scene.setVisible(false);
+		this.scene.setVisible(false);
 	}
 
 	public void leave(IRoomTraverserEntity ent) {

@@ -56,8 +56,8 @@ public class DefaultGameEngine implements IGameEngine {
 		EventCore core = gcontext.EventE;
 		core.regular.add((IEvent) stage);
 		core.regular.add((IEvent) gcontext.inputE);
-		// core.regular.add(gcontext.renderE);
-		// gcontext.renderE.panel.setUpdated(true);
+		core.regular.add(gcontext.renderE);
+		gcontext.renderE.panel.setUpdated(true);
 		core.start(Constants.millis_between_game_ticks);
 	}
 
