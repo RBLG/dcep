@@ -60,7 +60,7 @@ public class Room implements ITreeNodeRenderable {
 		// TODO rework pour que les generators ne modifie pas directement Room, c'est
 		// pas lisible
 		RoomGenerator.genRoom(this, pool, ndoors);
-		pathfinder = new PathFinder(state.navmesh);
+		pathfinder = new PathFinder(state.navmesh, state.navmjunctions);
 		RoomVisualGenerator.genVisual(this);
 
 		this.ews.add(new CollisionESS(walls));

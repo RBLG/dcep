@@ -9,8 +9,9 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import engine.game.defaultge.level.type1.visuals.bunker1.Bunker1Visual;
+import engine.physic.basic2Dvectorial.pathfinding.ResizedNavigationMesh;
+import engine.physic.basic2Dvectorial.pathfinding.format.Junction;
 import engine.physic.basic2Dvectorial.pathfinding.format.Tile;
-import engine.physic.basic2Dvectorial.pathfindingV2.ResizedNavigationMesh;
 import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.renderable.I2DRenderable;
 import engine.render.engine2d.renderable.StillImage;
@@ -33,7 +34,7 @@ public final class RoomVisualGenerator extends Room {
 		room.visuals.add(new RoomVisual(DrawLayer.Room_Floor, list.get(0)));
 		room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, list.get(1)));
 
-		if (Boolean.TRUE) {// TODO trud de test, a enlever
+		if (Boolean.FALSE) {// TODO trud de test, a enlever
 			/////////////////////////////////////////////////////////
 			CanvasImage navtestcv = new CanvasImage(Room.rosizex, Room.rosizey);
 			navtestcv.g.setComposite(AlphaComposite.SrcOver.derive(0.3f));
@@ -49,7 +50,7 @@ public final class RoomVisualGenerator extends Room {
 			}
 			room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders,
 					new StillImage(navtestcv.img, 0, 0, DrawLayer.Room_Shaders)));
-			if (Boolean.FALSE) {
+			if (Boolean.TRUE) {
 				/////////////////////////////////////////////////////////
 				ResizedNavigationMesh test = room.pathfinder.getCache()
 						.getFittingNavMesh(new IRectangle.Rectangle(0, 0, 20, 17));
@@ -66,10 +67,16 @@ public final class RoomVisualGenerator extends Room {
 					navtestcv.g.setColor(new Color(color));
 					Rectangle tilre = new Rectangle(tile.x, tile.y, tile.x2 - tile.x + 1, tile.y2 - tile.y + 1);
 					navtestcv.g.fill(tilre);
-					navtestcv.g.setColor(new Color(0x00FFFFFF));
+					// navtestcv.g.setColor(new Color(0x00FFFFFF));
 					// navtestcv.g.draw(tilre);
 					room.visuals
 							.add(new RoomVisual(DrawLayer.Game_Shader, new DevHollowRectangle(tilre, Color.yellow)));
+				}
+				for (Junction jc : test.getJunctions()) {
+
+					Rectangle jcrec = new Rectangle(jc.x - 1, jc.y - 1, jc.x2 - jc.x + 1 + 1, jc.y2 - jc.y + 1 + 1);
+					room.visuals
+							.add(new RoomVisual(DrawLayer.Game_Shader, new DevHollowRectangle(jcrec, Color.red)));
 				}
 				room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders,
 						new StillImage(navtestcv.img, 0, 0, DrawLayer.Room_Shaders)));

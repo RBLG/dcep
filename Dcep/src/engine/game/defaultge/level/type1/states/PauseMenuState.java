@@ -4,7 +4,7 @@ import engine.game.defaultge.level.type1.StageType1;
 import engine.render.engine2d.Basic2DSub;
 import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.renderable.Rectangle;
-import engine.state.prototype2.IState;
+import engine.state.IState;
 import my.util.Keys;
 
 import java.awt.Color;

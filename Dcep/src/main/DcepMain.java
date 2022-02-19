@@ -21,7 +21,7 @@ public class DcepMain {
 			rne.updateScreen();
 			return false;
 		});
-		vis.start(1000 / 100);
+		vis.start(1000 / 1000);
 
 		IGameEngine gme = new DefaultGameEngine(rne, ine, null);
 		gme.start();

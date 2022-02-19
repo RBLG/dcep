@@ -46,9 +46,10 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 	public StageContext scontext;
 	protected BasicV2PlayerInput motprov;
 	protected MovingBox hitbox;
-	protected PlayerInteracter interacter = new PlayerInteracter(this);
+	public PlayerInteracter interacter = new PlayerInteracter(this);
 	////////////////
 	// protected Rectangle visualhitbox;
+	//protected DevHollowRectangle rztest = new DevHollowRectangle(0, 0, 0, 0, Color.pink);
 
 	public PlayerEntityV3(StageContext nscontext) {
 		this.scontext = nscontext;
@@ -138,6 +139,9 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 	@Override
 	public void forEachVisuals(Consumer<I2DRenderable> task) {
 		task.accept(this.visual1);
+		//IRectangle rec = this.interacter.getZone();
+		//rztest.set(rec.getX(), rec.getY(), rec.getWidth(), rec.getHeight());
+		//task.accept(rztest);
 		// task.accept(visualhitbox);
 	}
 
@@ -162,6 +166,10 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 	@Override
 	public IRectangle getZone() {
 		return this.hitbox.toInt();
+	}
+
+	public Cardinal getFacing() {
+		return this.lastdir;
 	}
 
 }

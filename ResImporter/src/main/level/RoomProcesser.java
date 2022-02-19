@@ -43,19 +43,20 @@ public class RoomProcesser {
 			throw new RuntimeException("taille invalide");
 		}
 		ratio = 640 / img.getWidth();
-		//ratio *= Room.simscale;
+		// ratio *= Room.simscale;
 
 		// ArrayList<int[]> hitboxes = this.detectWalls(img);
 		EnumMap<Side, Door> doors = this.detectDoors(img);
 		CoCaSegments segs = this.detectBounds(img);
-		RoomSlicer slicer = new RoomSlicer(segs);
+		RoomSlicer slicer = new RoomSlicer(segs, doors);
 
 		// TODO a voir si OrDefault est une bonne idée ou une exception est mieux
 		RoomType type = RoomType.valueOf(fields.getOrDefault("type", "room"));
 		String visconf = fields.getOrDefault("confvisual", "stages/type1/togen/default/");
 		Log.log(this, "tiles:" + slicer.tiles.toString());
 		///////////// C'EST ICI /////////////////////////
-		this.room = new RoomState(segs.toSuper(), doors, slicer.tiles, type, slicer.vslices.get(69), visconf);
+		this.room = new RoomState(segs.toSuper(), doors, slicer.tiles, slicer.junctions, type, slicer.vslices.get(69),
+				visconf);
 		/////////////////////////////////////////////////
 
 		String e = segs.get(69).get(Cardinal.north).size() + "|" //

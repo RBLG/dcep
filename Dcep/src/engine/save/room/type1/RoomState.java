@@ -8,10 +8,12 @@ import java.util.HashMap;
 import engine.game.defaultge.level.type1.Room;
 import engine.game.defaultge.level.type1.RoomPool.DoorType;
 import engine.physic.basic2Dvectorial.ISegment;
+import engine.physic.basic2Dvectorial.pathfinding.format.Junction;
 import engine.physic.basic2Dvectorial.pathfinding.format.Tile;
 import my.util.Cardinal;
 import my.util.geometry.IPoint;
 import my.util.geometry.IPoint.Point;
+import my.util.geometry.IRectangle.Rectangle;
 
 public class RoomState implements Serializable {
 
@@ -22,6 +24,7 @@ public class RoomState implements Serializable {
 	// public final Door[] doors;
 	public final EnumMap<Side, Door> doors;
 	public final ArrayList<Tile> navmesh; // chemins que les entités peuvent suivre
+	public final ArrayList<Junction> navmjunctions;
 	public final RoomType type;
 	public final ArrayList<WallSlice> wallslices;
 	public final String visconfpath;
@@ -29,6 +32,7 @@ public class RoomState implements Serializable {
 	public RoomState(//
 			HashMap<Integer, EnumMap<Cardinal, ArrayList<ISegment>>> nwalls, EnumMap<Side, Door> ndoors, //
 			ArrayList<Tile> nnavmesh, //
+			ArrayList<Junction> njunctions, //
 			RoomType ntype, //
 			ArrayList<WallSlice> nwallslices, //
 			String nvisconfpath //
@@ -37,6 +41,7 @@ public class RoomState implements Serializable {
 		walls = nwalls;
 		doors = ndoors;
 		navmesh = nnavmesh;
+		navmjunctions = njunctions;
 		type = ntype;
 		wallslices = nwallslices;
 		visconfpath = nvisconfpath;
@@ -56,16 +61,10 @@ public class RoomState implements Serializable {
 		if (entrydoor == null) {// ne devrait jamais arriver
 			entrydoor = new RoomState.Door(Side.north, 10, 50);
 		}
+		// TODO passer de side a cardinal pour simplifier la recup de porte
+		// entrydoor = doors.get(dir.toOposite());
 
-		int nx = 0, ny = 0;
-		if (dir.isHorizontal()) {
-			nx = (dir == Cardinal.east) ? 1 : Room.rosizex - wh.getX() - 1;
-			ny = entrydoor.pos + (entrydoor.size - wh.getY()) / 2;
-		} else {
-			nx = entrydoor.pos + (entrydoor.size - wh.getX()) / 2;
-			ny = (dir == Cardinal.north) ? Room.rosizey - wh.getY() - 1 : 1;
-		}
-		return new Point(nx, ny);
+		return entrydoor.getFront(wh);
 	}
 
 	/////////////////////////////////
@@ -77,7 +76,6 @@ public class RoomState implements Serializable {
 		public Side side;
 		public int pos;
 		public int size;
-		public int index;
 
 		public Door(Side nside, int npos, int nsize) {
 			this.side = nside;
@@ -85,7 +83,32 @@ public class RoomState implements Serializable {
 			this.size = nsize;
 		}
 
-		//TODO generaliser (<ENUM> a la place de DoorType + <ENUM> après typecrit)
+		public Rectangle getZone() {
+			Cardinal dir = side.toCardinal();
+			int sided;
+			if (dir.isHorizontal()) {
+				sided = !dir.isPositiveOnItAxis() ? 0 : Room.rosizex;
+				return new Rectangle(sided, pos, sided, pos + size);
+			} else {
+				sided = !dir.isPositiveOnItAxis() ? 0 : Room.rosizey;
+				return new Rectangle(pos, sided, pos + size, sided);
+			}
+		}
+
+		public Point getFront(IPoint wh) {
+			int nx = 0, ny = 0;
+			Cardinal dir = side.toCardinal();
+			if (dir.isHorizontal()) {
+				nx = !dir.isPositiveOnItAxis() ? 1 : Room.rosizex - wh.getX() - 1;
+				ny = pos + (size - wh.getY()) / 2;
+			} else {
+				nx = pos + (size - wh.getX()) / 2;
+				ny = !dir.isPositiveOnItAxis() ? 1 : Room.rosizey - wh.getY() - 1;
+			}
+			return new Point(nx, ny);
+		}
+
+		// TODO generaliser (<ENUM> a la place de DoorType + <ENUM> après typecrit)
 		public DoorType getType(ITypeCriterias crit) {
 			return crit.judgeDoorSize(side, size);
 		}

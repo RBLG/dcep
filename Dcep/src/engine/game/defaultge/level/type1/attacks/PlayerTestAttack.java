@@ -15,7 +15,7 @@ public class PlayerTestAttack implements IAttacker {
 
 	@Override
 	public IRectangle getZone() {
-		return plr.getHitbox().toOutInt();
+		return plr.interacter.getZone();
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 package engine.game.defaultge.level.type1.states;
 
 import engine.game.defaultge.level.type1.StageType1;
-import engine.state.prototype2.IState;
+import engine.state.IState;
 import my.util.Keys;
 
 public class MapMenuState implements IState {

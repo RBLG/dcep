@@ -2,7 +2,10 @@ package main.level;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.ws.Holder;
 
@@ -11,12 +14,14 @@ import engine.physic.basic2Dvectorial.HorizontalSegment;
 import engine.physic.basic2Dvectorial.ISegment;
 import engine.physic.basic2Dvectorial.VerticalSegment;
 import engine.physic.basic2Dvectorial.pathfinding.format.Junction;
-import engine.physic.basic2Dvectorial.pathfinding.format.Neighbor;
 import engine.physic.basic2Dvectorial.pathfinding.format.Tile;
+import engine.save.room.type1.Side;
 import engine.save.room.type1.WallSlice;
+import engine.save.room.type1.RoomState.Door;
 import main.level.SlicerMiddleClasses.*;
 import my.util.Cardinal;
 import my.util.Log;
+import my.util.Misc;
 import my.util.geometry.IRectangle;
 import my.util.geometry.IVector;
 
@@ -26,20 +31,21 @@ public class RoomSlicer {
 	protected CoWSlices vslices, hslices;
 	protected FabricMap fabric;
 	protected ArrayList<Tile> tiles;
+	protected ArrayList<Junction> junctions;
 
-	public RoomSlicer(CoCaSegments nsegs) {
+	public RoomSlicer(CoCaSegments nsegs, EnumMap<Side, Door> ndoors) {
 		segs = nsegs;
 		vslices = this.sliceVertically(segs);
 		hslices = this.sliceHorizontally(segs);
 		fabric = this.weaveMap(vslices, hslices, 0xFFFFFFFF);
-		tiles = makeNavMesh(fabric);
+		tiles = makeNavMesh(fabric, ndoors);
+		junctions = listJunctions(tiles);
 
 	}
 
 	public CoWSlices sliceVertically(CoCaSegments allsegs) {
 		// -10 pour etre tranquille
 		ISegment hordef = new HorizontalSegment(0, Room.rosizex, -10, 0);
-		// verdef = new VerticalSegment(-10, 0, Room.rosizey, 0);
 		CoWSlices rtn = new CoWSlices();
 
 		for (Entry<Integer, CaSegments> entry : allsegs.entrySet()) {
@@ -169,11 +175,11 @@ public class RoomSlicer {
 		}
 	}
 
-	public ArrayList<Tile> makeNavMesh(FabricMap map) {
+	public ArrayList<Tile> makeNavMesh(FabricMap map, EnumMap<Side, Door> ndoors) {
 		ArrayList<Tile> tiles = group(map);
 		optimize(tiles);
 		weaveGraph(tiles);
-		linkIndex(tiles);
+		linkDoors(tiles, ndoors);
 		return tiles;
 	}
 
@@ -258,18 +264,18 @@ public class RoomSlicer {
 		while (!done.value) {
 			done.value = true;
 			compareAll(ntiles, (t1, t2) -> {
-				if (t2.neighbors == null) {
+				if (t2.junctions == null) {
 					return 0;
 				}
 				if (isDuplicate(t1, t2)) {
 					// marquage pour suppression
-					t1.neighbors = null;
+					t1.junctions = null;
 					done.value = false;
 				}
 				return 0;
 			});
 			ntiles.removeIf((tile) -> {
-				return tile.neighbors == null;
+				return tile.junctions == null;
 			});
 			compareAll(ntiles, (t1, t2) -> {
 				done.value &= !tryToReduce(t1, t2, iter.value);
@@ -399,28 +405,49 @@ public class RoomSlicer {
 	}
 
 	public void weaveGraph(ArrayList<Tile> ntiles) {
-		compareAll(ntiles, (t1, t2) -> {
+		Misc.compareAllOnce(ntiles, (t1, t2) -> {
 			IRectangle cro = t1.getOverlappingArea(t2);
 			if (cro != null && !cro.isAPoint()) {
 				IVector dir1 = t1.getCenter().getVectorTo(t2.getCenter());
-				dir1 = dir1.getSigns();
 				Junction jc = new Junction(cro, dir1);
-				t1.neighbors.add(new Neighbor(t1, t2, jc));
-				t2.neighbors.add(new Neighbor(t2, t1, jc));
+				for (Junction jc2 : t1.junctions) {
+					Junction.link(jc, jc2);
+				}
+				for (Junction jc2 : t2.junctions) {
+					Junction.link(jc, jc2);
+				}
+				jc.t1 = t1;
+				jc.t2 = t2;
+				t1.junctions.add(jc);
+				t2.junctions.add(jc);
 			}
-			return 0;
 		});
 	}
 
-	public void linkIndex(ArrayList<Tile> ntiles) {
-		int index = 0;
+	public void linkDoors(ArrayList<Tile> ntiles, EnumMap<Side, Door> ndoors) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public ArrayList<Junction> listJunctions(ArrayList<Tile> ntiles) {
+		Set<Junction> prejuncs = new HashSet<>();
 		for (Tile tile : ntiles) {
-			tile.index = index;
+			prejuncs.addAll(tile.junctions);
+		}
+		ArrayList<Junction> njuncs = new ArrayList<>(prejuncs);
+		linkIndex(njuncs);
+		return njuncs;
+	}
+
+	public void linkIndex(ArrayList<Junction> njuncs) {
+		int index = 0;
+		for (Junction juncs : njuncs) {
+			juncs.index = index;
 			index++;
 		}
 	}
 
-	public static class PreTile {
+	public static class PreTile {// TODO passer a int max value
 		int start, end, beg, length = 999999999;
 		int ori;
 
