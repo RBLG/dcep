@@ -3,10 +3,13 @@ package engine.game.defaultge.level.type1.entity;
 import java.awt.Color;
 import java.util.function.Consumer;
 
+import debug.PathVisualiser;
 import engine.entityfw.components.IHasCollidable;
 import engine.entityfw.components.IHasVisuals;
 import engine.game.defaultge.level.type1.Room;
 import engine.game.defaultge.level.type1.StageType1;
+import engine.physic.basic2Dattacks.IAttackable;
+import engine.physic.basic2Dattacks.IHasAttackables;
 import engine.physic.basic2Dvectorial.MovingBox;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionComputedListener;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionListener;
@@ -18,14 +21,15 @@ import engine.render.engine2d.renderable.I2DRenderable;
 import engine.render.engine2d.renderable.Rectangle;
 import engine.render.misc.HitBoxBasedModifier;
 import my.util.Cardinal;
+import my.util.Gauge;
 import my.util.geometry.IPoint;
 import my.util.geometry.IRectangle;
-import my.util.geometry.IVector;
 import my.util.geometry.floats.IFloatVector;
 import my.util.geometry.floats.IFloatVector.FloatVector;
 
 public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHasCollidable, //
-		IOnCollisionComputedListener, IOnCollisionListener, IMotionProvider {
+		IOnCollisionComputedListener, IOnCollisionListener, IMotionProvider, //
+		IHasAttackables, IAttackable {
 
 	protected MovingBox hitbox;
 	protected Room proom;
@@ -34,6 +38,7 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 	protected Rectangle visual = new Rectangle(0, 0, 20, 17, Color.YELLOW, DrawLayer.Room_Entities);
 	protected Rectangle goal = new Rectangle(0, 0, 3, 3, Color.red, DrawLayer.Room_Entities);
 	protected Rectangle nextonpath = new Rectangle(0, 0, 20, 17, new Color(255, 100, 0, 170), DrawLayer.Room_Entities);
+	protected PathVisualiser pathvis = new PathVisualiser(this.hitbox);
 
 	public PathfindingTester(StageType1 nstage) {
 
@@ -58,16 +63,15 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 		// Log.log(this, "path:" + path);
 		if (path != null) {
 			path.checkStuckness(intrec.getXY());
-			path.MoveToNextStepIfDone(this.hitbox.toOutInt());
+			path.MoveToNextStepIfDone(this.hitbox.getXY());
 			if (path.abort) {
 				this.visual.setColor(Color.BLACK);
 				this.done = true;
 				return new FloatVector(0, 0);
 			}
-
-			IVector unlimited = path.getCurrentVector(this.hitbox.toOutInt());
-			this.nextonpath.setPos(intrec.getX() + unlimited.getX(), intrec.getY() + unlimited.getY());
-			IFloatVector vec = path.getShortTermVector(this.hitbox.toOutInt(), 7);
+			IFloatVector unlimited = path.getCurrentVector(this.hitbox.getXY());
+			this.nextonpath.setPos((int) (intrec.getX() + unlimited.getX()), (int) (intrec.getY() + unlimited.getY()));
+			IFloatVector vec = path.getShortTermVector(this.hitbox.getXY(), 7);
 			return new FloatVector(vec.getX(), vec.getY());
 		}
 		return new FloatVector(0, 0);
@@ -80,6 +84,7 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 				IPoint next = pf.getRandomPoint(this.hitbox.toInt());
 				this.goal.setPos(next.getX(), next.getY());
 				path = pf.getPathFromTo(this.hitbox.toInt().getXY(), next, this.hitbox.toInt());
+				this.pathvis.updatePath(path);
 			}
 		}
 	}
@@ -117,6 +122,33 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 	public void forEachVisuals(Consumer<I2DRenderable> task) {
 		task.accept(this.visual);
 		task.accept(this.goal);
+		task.accept(pathvis);
+	}
+
+	@Override
+	public void forEachAttackables(Consumer<IAttackable> task) {
+		task.accept(this);
+	}
+
+	@Override
+	public IRectangle getZone() {
+		return this.hitbox.toInt();
+	}
+
+	protected Gauge hp = new Gauge(0, 50, 100);
+
+	@Override
+	public void receiveAttack(Enum<?> group, int dmg, Object effect) {
+		hp.substract(dmg);
+		if (hp.get() <= 0) {
+			this.die();
+		}
+	}
+
+	protected void die() {
+		stage.scontext.getGcontext().EventE.cleanup.add((time) -> {
+			proom.getEWS().remove(this);
+		});
 	}
 
 }

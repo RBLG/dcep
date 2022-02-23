@@ -3,10 +3,7 @@ package main.level;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.Map.Entry;
-import java.util.Set;
-
 import javax.xml.ws.Holder;
 
 import engine.game.defaultge.level.type1.Room;
@@ -39,7 +36,7 @@ public class RoomSlicer {
 		hslices = this.sliceHorizontally(segs);
 		fabric = this.weaveMap(vslices, hslices, 0xFFFFFFFF);
 		tiles = makeNavMesh(fabric, ndoors);
-		junctions = listJunctions(tiles);
+		junctions = weaveGraph(tiles);
 
 	}
 
@@ -176,11 +173,9 @@ public class RoomSlicer {
 	}
 
 	public ArrayList<Tile> makeNavMesh(FabricMap map, EnumMap<Side, Door> ndoors) {
-		ArrayList<Tile> tiles = group(map);
-		optimize(tiles);
-		weaveGraph(tiles);
-		linkDoors(tiles, ndoors);
-		return tiles;
+		ArrayList<Tile> ntiles = group(map);
+		optimize(ntiles);
+		return ntiles;
 	}
 
 	public ArrayList<Tile> group(FabricMap map) {
@@ -211,7 +206,6 @@ public class RoomSlicer {
 	}
 
 	public ArrayList<Tile> groupRangeToTileSub(ArrayList<Range> ranges, Slice hoall) {
-
 		ArrayList<PreTile> incompletes = new ArrayList<>();
 		Range ls = ranges.get(0);
 		int iter = 0;
@@ -404,51 +398,71 @@ public class RoomSlicer {
 		Log.log(this, "average ratio:" + ratio);
 	}
 
-	public void weaveGraph(ArrayList<Tile> ntiles) {
+	public ArrayList<Junction> weaveGraph(ArrayList<Tile> ntiles) {
+		ArrayList<Junction> njuncs = new ArrayList<>();
 		Misc.compareAllOnce(ntiles, (t1, t2) -> {
 			IRectangle cro = t1.getOverlappingArea(t2);
 			if (cro != null && !cro.isAPoint()) {
 				IVector dir1 = t1.getCenter().getVectorTo(t2.getCenter());
 				Junction jc = new Junction(cro, dir1);
-				for (Junction jc2 : t1.junctions) {
-					Junction.link(jc, jc2);
-				}
-				for (Junction jc2 : t2.junctions) {
-					Junction.link(jc, jc2);
-				}
+				t1.junctions.forEach((jc2) -> Junction.link(jc, jc2));
+				t2.junctions.forEach((jc2) -> Junction.link(jc, jc2));
 				jc.t1 = t1;
 				jc.t2 = t2;
 				t1.junctions.add(jc);
 				t2.junctions.add(jc);
+				njuncs.add(jc);
+				jc.index = njuncs.size() - 1;
 			}
 		});
-	}
-
-	public void linkDoors(ArrayList<Tile> ntiles, EnumMap<Side, Door> ndoors) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public ArrayList<Junction> listJunctions(ArrayList<Tile> ntiles) {
-		Set<Junction> prejuncs = new HashSet<>();
-		for (Tile tile : ntiles) {
-			prejuncs.addAll(tile.junctions);
-		}
-		ArrayList<Junction> njuncs = new ArrayList<>(prejuncs);
-		linkIndex(njuncs);
 		return njuncs;
 	}
 
-	public void linkIndex(ArrayList<Junction> njuncs) {
-		int index = 0;
-		for (Junction juncs : njuncs) {
-			juncs.index = index;
-			index++;
-		}
-	}
+//	public void addDoors(ArrayList<Tile> ntiles, EnumMap<Side, Door> ndoors) {
+//		ntiles.forEach((t) -> {
+//			if (t.x == 0) {
+//				addDoorsSub(t, ndoors.get(Side.west));
+//			} else if (t.y == 0) {
+//				addDoorsSub(t, ndoors.get(Side.north));
+//			} else if (t.x2 == Room.rosizex) {
+//				addDoorsSub(t, ndoors.get(Side.east));
+//			} else if (t.y2 == Room.rosizey) {
+//				addDoorsSub(t, ndoors.get(Side.south));
+//			}
+//		});
+//	}
 
-	public static class PreTile {// TODO passer a int max value
-		int start, end, beg, length = 999999999;
+//	private void addDoorsSub(Tile t, Door door) {
+//		// IRectangle cro = door.getZone();
+//		// IVector dir1 = t.getCenter().getVectorTo(cro.getCenter());
+//		// Junction jc = new Junction(cro, dir1);
+//		// t.junctions.forEach((jc2) -> Junction.link(jc, jc2));
+//		// jc.t1 = t;
+//		// t.junctions.add(jc);
+//		// door.junction = jc;
+//		door.tile = t;
+//	}
+
+//	public ArrayList<Junction> listJunctions(ArrayList<Tile> ntiles) {
+//		Set<Junction> prejuncs = new HashSet<>();
+//		for (Tile tile : ntiles) {
+//			prejuncs.addAll(tile.junctions);
+//		}
+//		ArrayList<Junction> njuncs = new ArrayList<>(prejuncs);
+//		linkIndex(njuncs);
+//		return njuncs;
+//	}
+
+//	public void linkIndex(ArrayList<Junction> njuncs) {
+//		int index = 0;
+//		for (Junction juncs : njuncs) {
+//			juncs.index = index;
+//			index++;
+//		}
+//	}
+
+	public static class PreTile {
+		int start, end, beg, length = Integer.MAX_VALUE;
 		int ori;
 
 		public PreTile(int nstart, int nend, int nbeg, int nori) {

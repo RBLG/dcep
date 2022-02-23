@@ -4,6 +4,7 @@ import java.util.EnumMap;
 import java.util.Random;
 import java.util.function.Consumer;
 
+import debug.PathVisualiser;
 import engine.entityfw.IEntityV3;
 import engine.entityfw.components.IHasCollidable;
 import engine.entityfw.components.IHasVisuals;
@@ -62,7 +63,7 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 		e.put(PlayerVState.up_stand, new LoopingAnimation(FolderVideos.player_redbox_stand_up.get(), layer));
 		e.put(PlayerVState.down_stand, new LoopingAnimation(FolderVideos.player_redbox_stand_down.get(), layer));
 		e.put(PlayerVState.left_stand, new LoopingAnimation(FolderVideos.player_redbox_stand_left.get(), layer));
-		e.put(PlayerVState.right_stand, new LoopingAnimation(FolderVideos.player_redbox_stand_right.get(),layer));
+		e.put(PlayerVState.right_stand, new LoopingAnimation(FolderVideos.player_redbox_stand_right.get(), layer));
 		this.visual1 = new MapGraphicEntity<>(new Point(0, -23), PlayerVState.down_stand, e, layer);
 		this.visual1.setModifier(mod);
 
@@ -76,6 +77,7 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 	@Override
 	public void forEachVisuals(Consumer<I2DRenderable> task) {
 		task.accept(visual1);
+		task.accept(pathvis);
 	}
 
 	@Override
@@ -105,6 +107,8 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 
 	protected Path path;
 
+	protected PathVisualiser pathvis = new PathVisualiser(this.hitbox);
+
 	protected INextMotionProvider mpstate = this::onMovingMotionProvider;
 
 	@Override
@@ -122,10 +126,11 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 			if (this.room != null) {
 				PathFinder pf = this.room.getPathfinder();
 				path = pf.getPathToRandomPointInWalkRange(this.hitbox.toOutInt(), 200);
+				this.pathvis.updatePath(path);
 			}
 		} else {
 			path.checkStuckness(this.hitbox.toOutInt().getXY());
-			path.MoveToNextStepIfDone(this.hitbox.toOutInt());
+			path.MoveToNextStepIfDone(this.hitbox.getXY());
 			if (path.isDone(this.hitbox.toOutInt())) {
 				this.mpstate = this::onWaitingMotionProvider;
 				//////////////////////////////////
@@ -137,7 +142,7 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 				this.path = null;
 				return new FloatVector(0, 0);
 			}
-			IFloatVector vec = path.getShortTermVector(this.hitbox.toOutInt(), 3);
+			IFloatVector vec = path.getShortTermVector(this.hitbox.getXY(), 3);
 			return new FloatVector(vec.getX(), vec.getY());
 		}
 		return new FloatVector(0, 0);

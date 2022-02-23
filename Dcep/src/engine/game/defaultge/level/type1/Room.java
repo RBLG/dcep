@@ -8,7 +8,6 @@ import engine.entityfw.components.IHasInteractables;
 import engine.entityfw.subsystems.EntitySubscriber;
 import engine.entityfw.subsystems.VisualESS;
 import engine.game.defaultge.level.type1.RoomPool.DoorType;
-import engine.game.defaultge.level.type1.RoomVisualGenerator.RoomVisual;
 import engine.game.defaultge.level.type1.entity.PlayerEntityV3;
 import engine.game.defaultge.level.type1.entity.WandererTest;
 import engine.game.defaultge.level.type1.interactions.RoomInteractableHaver;
@@ -18,14 +17,17 @@ import engine.physic.basic2Dattacks.AttackESS;
 import engine.physic.basic2Dattacks.IHasAttackables;
 import engine.physic.basic2Dvectorial.CollisionESS;
 import engine.physic.basic2Dvectorial.ISegment;
+import engine.physic.basic2Dvectorial.pathfinding.Path;
 import engine.physic.basic2Dvectorial.pathfinding.PathFinder;
 import engine.render.engine2d.Basic2DSub;
 import engine.render.engine2d.RenderableList;
+import engine.render.engine2d.renderable.I2DRenderable;
 import engine.render.engine2d.temp.ITreeNodeRenderable;
 import engine.save.room.type1.RoomState;
 import engine.save.room.type1.Side;
 import engine.save.room.type1.RoomState.Door;
 import my.util.Cardinal;
+import my.util.geometry.IPoint.Point;
 import my.util.geometry.IRectangle;
 
 public class Room implements ITreeNodeRenderable {
@@ -38,12 +40,11 @@ public class Room implements ITreeNodeRenderable {
 	public RoomState state;
 	public EnumMap<Side, Door> doors;
 	public EnumMap<Cardinal, ArrayList<ISegment>> walls;
-	protected ArrayList<RoomVisual> visuals = new ArrayList<>();
+	protected ArrayList<I2DRenderable> visuals = new ArrayList<>();
 	protected EntityWackSystem ews;
 	protected VisualESS visualess = new VisualESS();
 	protected RoomInteractableHaver interactables = new RoomInteractableHaver(this);
 
-	// TODO a rework
 	protected PathFinder pathfinder;
 
 	/**
@@ -79,8 +80,9 @@ public class Room implements ITreeNodeRenderable {
 				new WandererTest(stage, this, this.pathfinder.getRandomPoint(new IRectangle.Rectangle(0, 0, 20, 17))));
 
 		scene.setVisible(false);
-		for (RoomVisual vis : visuals) {
-			this.scene.add(vis.rd);
+		//TODO clean les artifacts de RoomVisuals
+		for (I2DRenderable vis : visuals) {
+			this.scene.add(vis);
 		}
 //		for (ArrayList<ISegment> segs : state.walls.values()) {
 //			for (ISegment seg : segs) {
@@ -124,6 +126,13 @@ public class Room implements ITreeNodeRenderable {
 
 	public PathFinder getPathfinder() {
 		return pathfinder;
+	}
+
+	public Path getPathToDoor(IRectangle rec, Side side) {
+		Point dpt = new Point(doors.get(side).getZone().getCenter());
+		dpt.x = Integer.max(0, dpt.x - rec.getWidth());
+		dpt.y = Integer.max(0, dpt.y - rec.getHeight());
+		return pathfinder.getPathFromTo(rec.getXY(), doors.get(side).getZone().getCenter(), rec);
 	}
 
 	public EntityWackSystem getEWS() {

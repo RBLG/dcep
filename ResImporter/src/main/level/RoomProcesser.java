@@ -27,7 +27,7 @@ public class RoomProcesser {
 	protected RoomState room;
 	protected HashMap<String, String> fields;
 	protected int ratio;
-	protected BufferedImage img2; // TODO replacer img local
+	protected BufferedImage img2; // TODO replacer img local (?)
 
 	public RoomProcesser(String base, HashMap<String, String> nfields) {
 		this.fields = nfields;

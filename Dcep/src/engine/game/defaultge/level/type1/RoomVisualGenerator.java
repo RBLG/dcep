@@ -13,11 +13,14 @@ import engine.physic.basic2Dvectorial.pathfinding.ResizedNavigationMesh;
 import engine.physic.basic2Dvectorial.pathfinding.format.Junction;
 import engine.physic.basic2Dvectorial.pathfinding.format.Tile;
 import engine.render.engine2d.DrawLayer;
+import engine.render.engine2d.renderable.BasicText;
 import engine.render.engine2d.renderable.I2DRenderable;
 import engine.render.engine2d.renderable.StillImage;
 import engine.render.engine2d.renderable.dev.DevHollowRectangle;
+import engine.render.engine2d.renderable.dev.DevSegment;
 import my.util.ImageCache;
 import my.util.Log;
+import my.util.geometry.IPoint.Point;
 import my.util.geometry.IRectangle;
 
 public final class RoomVisualGenerator extends Room {
@@ -31,14 +34,15 @@ public final class RoomVisualGenerator extends Room {
 
 		Bunker1Visual vis = new Bunker1Visual();
 		ArrayList<I2DRenderable> list = vis.getVisuals(room.state);
-		room.visuals.add(new RoomVisual(DrawLayer.Room_Floor, list.get(0)));
-		room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders, list.get(1)));
+		room.visuals.add(list.get(0));
+		room.visuals.add(list.get(1));
 
-		if (Boolean.FALSE) {// TODO trud de test, a enlever
-			/////////////////////////////////////////////////////////
-			CanvasImage navtestcv = new CanvasImage(Room.rosizex, Room.rosizey);
-			navtestcv.g.setComposite(AlphaComposite.SrcOver.derive(0.3f));
-			int color = 0x8000F000;
+		// TODO trud de test, a enlever
+		/////////////////////////////////////////////////////////
+		CanvasImage navtestcv = new CanvasImage(Room.rosizex, Room.rosizey);
+		navtestcv.g.setComposite(AlphaComposite.SrcOver.derive(0.3f));
+		int color = 0x8000F000;
+		if (Boolean.FALSE) {
 			for (Tile tile : room.state.navmesh) {
 				color += 666;
 				navtestcv.g.setColor(new Color(color));
@@ -46,53 +50,58 @@ public final class RoomVisualGenerator extends Room {
 				navtestcv.g.fill(tilre);
 				navtestcv.g.setColor(new Color(0x00FFFFFF));
 				// navtestcv.g.draw(tilre);
-				room.visuals.add(new RoomVisual(DrawLayer.Game_Shader, new DevHollowRectangle(tilre, Color.white)));
+				room.visuals.add(new DevHollowRectangle(tilre, Color.white));
 			}
-			room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders,
-					new StillImage(navtestcv.img, 0, 0, DrawLayer.Room_Shaders)));
-			if (Boolean.TRUE) {
-				/////////////////////////////////////////////////////////
-				ResizedNavigationMesh test = room.pathfinder.getCache()
-						.getFittingNavMesh(new IRectangle.Rectangle(0, 0, 20, 17));
-				navtestcv = new CanvasImage(Room.rosizex, Room.rosizey);
-				navtestcv.g.setComposite(AlphaComposite.SrcOver.derive(0.3f));
-				color = 0x8000F000;
-				for (Tile tile : test.getTiles()) {
-					if (tile.x2 - tile.x < 0 || tile.y2 - tile.y < 0) {
-						Log.log("roomvisgen", "tile negative waaa");
+			room.visuals.add(new StillImage(navtestcv.img, 0, 0, DrawLayer.Room_Shaders));
+		}
+
+		/////////////////////////////////////////////////////////
+		ResizedNavigationMesh test = room.pathfinder.getCache()
+				.getFittingNavMesh(new IRectangle.Rectangle(0, 0, 21, 18));
+		navtestcv = new CanvasImage(Room.rosizex, Room.rosizey);
+		navtestcv.g.setComposite(AlphaComposite.SrcOver.derive(0.3f));
+		color = 0x8000F000;
+		if (Boolean.FALSE) {
+			for (Tile tile : test.getTiles()) {
+				if (tile.x2 - tile.x < 0 || tile.y2 - tile.y < 0) {
+					Log.log("roomvisgen", "tile negative waaa");
+				}
+				// Log.log("rvisgen", "nbs:" + tile.neighbors.size());
+
+				color += 666;
+				navtestcv.g.setColor(new Color(color));
+				Rectangle tilre = new Rectangle(tile.x, tile.y, tile.x2 - tile.x + 1, tile.y2 - tile.y + 1);
+				navtestcv.g.fill(tilre);
+				// navtestcv.g.setColor(new Color(0x00FFFFFF));
+				// navtestcv.g.draw(tilre);
+				room.visuals.add(new DevHollowRectangle(tilre, Color.yellow));
+			}
+		}
+		if (Boolean.FALSE) {
+			for (Tile tile : test.getTiles()) {
+				for (Junction jc : tile.junctions) {
+					room.visuals.add(new DevSegment(tile.getCenter(), jc.getCenter(), new Color(255, 0, 255)));
+				}
+			}
+		}
+
+		if (Boolean.FALSE) {
+			room.visuals.add(new StillImage(navtestcv.img, 0, 0, DrawLayer.Room_Shaders));
+		}
+		if (Boolean.TRUE) {
+			for (Junction jc : test.getJunctions()) {
+				Rectangle jcrec = new Rectangle(jc.x - 1, jc.y - 1, jc.x2 - jc.x + 1 + 1, jc.y2 - jc.y + 1 + 1);
+				room.visuals.add(new DevHollowRectangle(jcrec, Color.orange));
+				room.visuals
+						.add(new BasicText(new Point(jcrec.x, jcrec.y), "" + jc.index, Color.black, DrawLayer.debug));
+				if (Boolean.FALSE) {
+					for (Junction li : jc.linkeds) {
+						room.visuals.add(new DevSegment(jc.getCenter(), li.getCenter(), Color.red));
 					}
-					// Log.log("rvisgen", "nbs:" + tile.neighbors.size());
-
-					color += 666;
-					navtestcv.g.setColor(new Color(color));
-					Rectangle tilre = new Rectangle(tile.x, tile.y, tile.x2 - tile.x + 1, tile.y2 - tile.y + 1);
-					navtestcv.g.fill(tilre);
-					// navtestcv.g.setColor(new Color(0x00FFFFFF));
-					// navtestcv.g.draw(tilre);
-					room.visuals
-							.add(new RoomVisual(DrawLayer.Game_Shader, new DevHollowRectangle(tilre, Color.yellow)));
 				}
-				for (Junction jc : test.getJunctions()) {
-
-					Rectangle jcrec = new Rectangle(jc.x - 1, jc.y - 1, jc.x2 - jc.x + 1 + 1, jc.y2 - jc.y + 1 + 1);
-					room.visuals
-							.add(new RoomVisual(DrawLayer.Game_Shader, new DevHollowRectangle(jcrec, Color.red)));
-				}
-				room.visuals.add(new RoomVisual(DrawLayer.Room_Shaders,
-						new StillImage(navtestcv.img, 0, 0, DrawLayer.Room_Shaders)));
 			}
 		}
 
-	}
-
-	public static class RoomVisual {
-		public final DrawLayer lay;
-		public final I2DRenderable rd;
-
-		public RoomVisual(DrawLayer nlay, I2DRenderable ren) {
-			lay = nlay;
-			rd = ren;
-		}
 	}
 
 	public static class PatternImage {
