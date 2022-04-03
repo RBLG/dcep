@@ -26,7 +26,7 @@ public class StageType1 extends StageEngine implements ITreeNodeRenderable {
 	protected Room[][] floor;
 	public Point current = new Point(StageGenerator.fcentx, StageGenerator.fcenty);
 	protected PlayerEntityV3 player;
-	public StageMap map = new StageMap();
+	public StageVisualMap map = new StageVisualMap();
 
 	public StageContext scontext;
 

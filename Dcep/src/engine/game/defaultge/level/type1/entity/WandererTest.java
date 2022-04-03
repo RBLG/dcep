@@ -117,7 +117,6 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 	}
 
 	public FloatVector onWaitingMotionProvider(MovingBox box) {
-
 		return new FloatVector(0, 0);
 	}
 

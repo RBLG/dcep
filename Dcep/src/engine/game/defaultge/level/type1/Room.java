@@ -46,6 +46,7 @@ public class Room implements ITreeNodeRenderable {
 	protected RoomInteractableHaver interactables = new RoomInteractableHaver(this);
 
 	protected PathFinder pathfinder;
+	public int index; // index pour le sonar
 
 	/**
 	 * doors[] -> n,s,e,w
@@ -80,7 +81,7 @@ public class Room implements ITreeNodeRenderable {
 				new WandererTest(stage, this, this.pathfinder.getRandomPoint(new IRectangle.Rectangle(0, 0, 20, 17))));
 
 		scene.setVisible(false);
-		//TODO clean les artifacts de RoomVisuals
+		// TODO clean les artifacts de RoomVisuals
 		for (I2DRenderable vis : visuals) {
 			this.scene.add(vis);
 		}
