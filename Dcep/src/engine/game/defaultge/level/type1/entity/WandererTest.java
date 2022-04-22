@@ -1,17 +1,23 @@
 package engine.game.defaultge.level.type1.entity;
 
 import java.util.EnumMap;
-import java.util.Random;
 import java.util.function.Consumer;
 
 import debug.PathVisualiser;
 import engine.entityfw.IEntityV3;
 import engine.entityfw.components.IHasCollidable;
 import engine.entityfw.components.IHasVisuals;
-import engine.game.defaultge.level.type1.GameTick;
+import engine.entityfwp2.ai.BehaviorCore;
+import engine.entityfwp2.ai.Blackboard;
+import engine.entityfwp2.ai.ConditionNode;
+import engine.entityfwp2.ai.IHasBehaviours;
+import engine.entityfwp2.ai.SequenceNode;
+import engine.entityfwp2.ai.action.IAction.Status;
+import engine.entityfwp2.ai.condition.DoForRandomDuration;
 import engine.game.defaultge.level.type1.Room;
 import engine.game.defaultge.level.type1.StageContext;
 import engine.game.defaultge.level.type1.StageType1;
+import engine.game.defaultge.level.type1.entity.actions.GoSomewhereInRange;
 import engine.physic.basic2Dattacks.IAttackable;
 import engine.physic.basic2Dattacks.IHasAttackables;
 import engine.physic.basic2Dvectorial.MovingBox;
@@ -19,14 +25,11 @@ import engine.physic.basic2Dvectorial.MovingBox.INextMotionProvider;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionComputedListener;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionListener;
 import engine.physic.basic2Dvectorial.motionprovider.BasicV2PlayerInput;
-import engine.physic.basic2Dvectorial.pathfinding.Path;
-import engine.physic.basic2Dvectorial.pathfinding.PathFinder;
 import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.renderable.I2DRenderable;
 import engine.render.engine2d.renderable.LoopingAnimation;
 import engine.render.engine2d.renderable.MapGraphicEntity;
 import engine.render.misc.HitBoxBasedModifier;
-import main.events.DelayedEvent;
 import my.util.Cardinal;
 import my.util.Gauge;
 import my.util.geometry.IPoint;
@@ -36,9 +39,9 @@ import my.util.geometry.floats.IFloatVector;
 import my.util.geometry.floats.IFloatVector.FloatVector;
 import res.visual.FolderVideos;
 
-public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHasAttackables, //
-		IAttackable, //
-		IOnCollisionComputedListener, IOnCollisionListener, INextMotionProvider {
+public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHasAttackables, IHasBehaviours, //
+	IAttackable, //
+	IOnCollisionComputedListener, IOnCollisionListener, INextMotionProvider {
 
 	protected MapGraphicEntity<PlayerVState> visual1;
 	protected HitBoxBasedModifier mod;
@@ -66,6 +69,19 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 		e.put(PlayerVState.right_stand, new LoopingAnimation(FolderVideos.player_redbox_stand_right.get(), layer));
 		this.visual1 = new MapGraphicEntity<>(new Point(0, -23), PlayerVState.down_stand, e, layer);
 		this.visual1.setModifier(mod);
+
+		bboard.add("room", nroom);
+		bboard.add("idle", false);
+		bboard.add("pathvisualiser", this.pathvis);
+		behaviours = new BehaviorCore(//
+			new SequenceNode(//
+				new ConditionNode(() -> bboard.isTrue("idle", true), //
+					new DoForRandomDuration(bboard, () -> {
+
+						return Status.running;
+					}, 0, 4000)), //
+				new GoSomewhereInRange(bboard, 200, hitbox, this::setNextVec))//
+		);
 
 	}
 
@@ -105,46 +121,19 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 		this.visual1.set(PlayerVState.concat(mov, this.lastdir));
 	}
 
-	protected Path path;
+	// protected Path path;
 
 	protected PathVisualiser pathvis = new PathVisualiser(this.hitbox);
 
-	protected INextMotionProvider mpstate = this::onMovingMotionProvider;
+	protected FloatVector nextvec = new FloatVector(0, 0);
+
+	protected void setNextVec(FloatVector nvec) {
+		nextvec = nvec;
+	}
 
 	@Override
 	public FloatVector getNextMotionVector(MovingBox box) {
-		return mpstate.getNextMotionVector(box);
-	}
-
-	public FloatVector onWaitingMotionProvider(MovingBox box) {
-		return new FloatVector(0, 0);
-	}
-
-	public FloatVector onMovingMotionProvider(MovingBox box) {
-		if (path == null) {
-			if (this.room != null) {
-				PathFinder pf = this.room.getPathfinder();
-				path = pf.getPathToRandomPointInWalkRange(this.hitbox.toOutInt(), 200);
-				this.pathvis.updatePath(path);
-			}
-		} else {
-			path.checkStuckness(this.hitbox.toOutInt().getXY());
-			path.MoveToNextStepIfDone(this.hitbox.getXY());
-			if (path.isDone(this.hitbox.toOutInt())) {
-				this.mpstate = this::onWaitingMotionProvider;
-				//////////////////////////////////
-				scontext.getGcontext().EventE.chaotic
-						.add(new DelayedEvent(GameTick.fromMillis((new Random()).nextInt(4000)), (time) -> {
-							this.mpstate = this::onMovingMotionProvider;
-						}));
-				/////////////////////////////////////
-				this.path = null;
-				return new FloatVector(0, 0);
-			}
-			IFloatVector vec = path.getShortTermVector(this.hitbox.getXY(), 3);
-			return new FloatVector(vec.getX(), vec.getY());
-		}
-		return new FloatVector(0, 0);
+		return nextvec;
 	}
 
 	@Override
@@ -171,6 +160,15 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 		scontext.getGcontext().EventE.cleanup.add((time) -> {
 			room.getEWS().remove(this);
 		});
+	}
+
+	protected Blackboard bboard = new Blackboard();
+
+	protected BehaviorCore behaviours;
+
+	@Override
+	public void think(Consumer<BehaviorCore> task) {
+		this.behaviours.run(0);
 	}
 
 }

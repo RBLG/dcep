@@ -7,6 +7,7 @@ import engine.entityfw.EntityWackSystem;
 import engine.entityfw.components.IHasInteractables;
 import engine.entityfw.subsystems.EntitySubscriber;
 import engine.entityfw.subsystems.VisualESS;
+import engine.entityfwp2.ai.BehavioursESS;
 import engine.game.defaultge.level.type1.RoomPool.DoorType;
 import engine.game.defaultge.level.type1.entity.PlayerEntityV3;
 import engine.game.defaultge.level.type1.entity.WandererTest;
@@ -65,6 +66,7 @@ public class Room implements ITreeNodeRenderable {
 		pathfinder = new PathFinder(state.navmesh, state.navmjunctions);
 		RoomVisualGenerator.genVisual(this);
 
+		this.ews.add(new BehavioursESS());
 		this.ews.add(new CollisionESS(walls));
 		this.ews.add(visualess);
 		this.scene.add(this.visualess);
@@ -77,8 +79,8 @@ public class Room implements ITreeNodeRenderable {
 
 		// a la fin de l'instantiation des ess (au cas ou j'ai envie d'en ajouter plus)
 		this.ews.add(this.interactables);
-		this.ews.add(
-				new WandererTest(stage, this, this.pathfinder.getRandomPoint(new IRectangle.Rectangle(0, 0, 20, 17))));
+		this.ews
+			.add(new WandererTest(stage, this, this.pathfinder.getRandomPoint(new IRectangle.Rectangle(0, 0, 20, 17))));
 
 		scene.setVisible(false);
 		// TODO clean les artifacts de RoomVisuals
