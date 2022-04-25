@@ -9,18 +9,23 @@ import engine.game.defaultge.level.type1.Room;
 import engine.physic.basic2Dvectorial.MovingBox;
 import engine.physic.basic2Dvectorial.pathfinding.Path;
 import engine.physic.basic2Dvectorial.pathfinding.PathFinder;
+import my.util.Log;
 import my.util.geometry.floats.IFloatPoint;
 import my.util.geometry.floats.IFloatVector;
 import my.util.geometry.floats.IFloatVector.FloatVector;
 
 public class GoSomewhereInRange implements IAction {
 
-	public GoSomewhereInRange(Blackboard nboard, int nrange, MovingBox nbox, Consumer<FloatVector> noutput) {
+	public GoSomewhereInRange(Blackboard nboard, Room nroom, int nrange, MovingBox nbox,
+		Consumer<FloatVector> noutput) {
 		board = nboard;
 		range = nrange;
 		box = nbox;
 		output = noutput;
+		room = nroom;
 	}
+
+	protected Room room;
 
 	protected int range;
 
@@ -33,9 +38,15 @@ public class GoSomewhereInRange implements IAction {
 	protected Consumer<FloatVector> output;
 
 	@Override
+	public void start() {
+		// path = null;
+		Log.e("start");
+	}
+
+	@Override
 	public Status doOngoing() {
 		box.applyMotion();
-		Room room = board.getOrNull("room", Room.class);
+		//Room room = board.getOrNull("room", Room.class);
 		IFloatPoint xy = box.getXY();
 		if (path == null) {
 			if (room != null) {
