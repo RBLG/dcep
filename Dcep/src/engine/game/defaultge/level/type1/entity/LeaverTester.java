@@ -20,8 +20,10 @@ import engine.render.engine2d.renderable.I2DRenderable;
 import engine.render.engine2d.renderable.LoopingAnimation;
 import engine.render.engine2d.renderable.MapGraphicEntity;
 import engine.render.misc.HitBoxBasedModifier;
+import my.util.Field;
 import my.util.geometry.IPoint;
 import my.util.geometry.IPoint.Point;
+import my.util.geometry.floats.IFloatVector.FloatVector;
 import res.visual.FolderVideos;
 
 public class LeaverTester implements IEntityV3, IHasVisuals, IHasCollidable, IHasAttackables, IHasBehaviours {
@@ -36,7 +38,7 @@ public class LeaverTester implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 		room = nroom;
 		scontext = stage.scontext;
 
-		this.hitbox = new MovingBox(npt.getX(), npt.getY(), 20, 17, this, this, this);
+		this.hitbox = new MovingBox(npt.getX(), npt.getY(), 20, 17, (e) -> nextvec.get(), null, null);
 		this.mod = new HitBoxBasedModifier(this.hitbox, new IPoint.Point(0, 0), 0);
 
 		EnumMap<PlayerVState, I2DRenderable> e = new EnumMap<>(PlayerVState.class);
@@ -58,24 +60,30 @@ public class LeaverTester implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 	@Override
 	public void think(Consumer<BehaviorCore> task) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void forEachAttackables(Consumer<IAttackable> task) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void forEachCollidables(Consumer<MovingBox> task) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void forEachVisuals(Consumer<I2DRenderable> task) {
 		// TODO Auto-generated method stub
-		
+
 	}
+
+	private void genBehaviours() {
+		// TODO Auto-generated method stub
+	}
+
+	protected Field<FloatVector> nextvec = new Field<>(new FloatVector(0, 0));
 }

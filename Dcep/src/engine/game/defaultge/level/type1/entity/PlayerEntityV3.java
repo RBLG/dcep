@@ -18,7 +18,6 @@ import engine.physic.basic2Dattacks.IHasAttackables;
 import engine.physic.basic2Dattacks.IHasAttackers;
 import engine.physic.basic2Dvectorial.MovingBox;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionComputedListener;
-import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionListener;
 import engine.physic.basic2Dvectorial.motionprovider.BasicV2PlayerInput;
 import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.renderable.Animation;
@@ -35,9 +34,8 @@ import my.util.geometry.floats.IFloatVector;
 import res.visual.FolderVideos;
 
 public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHasVisuals, //
-		IHasInteracters, IHasAttackers, IHasAttackables, //
-		IAttackable, //
-		IOnCollisionComputedListener, IOnCollisionListener {
+	IHasInteracters, IHasAttackers, IHasAttackables, //
+	IOnCollisionComputedListener {
 	public static final int visualsizex = 50;
 	public static final int visualsizey = 90;
 
@@ -49,13 +47,14 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 	public PlayerInteracter interacter = new PlayerInteracter(this);
 	////////////////
 	// protected Rectangle visualhitbox;
-	//protected DevHollowRectangle rztest = new DevHollowRectangle(0, 0, 0, 0, Color.pink);
+	// protected DevHollowRectangle rztest = new DevHollowRectangle(0, 0, 0, 0,
+	//////////////// Color.pink);
 
 	public PlayerEntityV3(StageContext nscontext) {
 		this.scontext = nscontext;
 
 		this.motprov = new BasicV2PlayerInput(scontext.getInputE());
-		this.hitbox = new MovingBox(0, 0, 20, 17, this.motprov, this, this);
+		this.hitbox = new MovingBox(0, 0, 20, 17, this.motprov, null, this);
 		this.mod = new HitBoxBasedModifier(this.hitbox, new IPoint.Point(0, 0), 0);
 
 		// TODO a externaliser en fichier de conf
@@ -97,28 +96,15 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 		PlayerVState last = visual1.getKey();
 		this.mod.resetBeginning();
 		IFloatVector vec = this.hitbox.getVec();
-		boolean mov = false;
-		if (Math.abs(vec.getY()) > Math.abs(vec.getX())) {
-			if (vec.getY() != 0) {
-				mov = true;
-				this.lastdir = (vec.getY() > 0) ? Cardinal.south : Cardinal.north;
-			}
-		} else {
-			if (vec.getX() != 0) {
-				mov = true;
-				this.lastdir = (vec.getX() > 0) ? Cardinal.east : Cardinal.west;
-			}
+		Cardinal ndir = Cardinal.getVectorGeneralDirection(vec);
+		if (ndir != null) {
+			lastdir = ndir;
 		}
-		PlayerVState state = PlayerVState.concat(mov, this.lastdir);
+		PlayerVState state = PlayerVState.concat(ndir != null, this.lastdir);
 		this.visual1.set(state);
 		if (last != state) {
 			((Animation) this.visual1.get(state)).setBeginning(System.currentTimeMillis());
 		}
-	}
-
-	@Override
-	public void onCollision(MovingBox box) {
-		return;
 	}
 
 	public MovingBox getHitbox() {
@@ -133,19 +119,7 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 	@Override
 	public void forEachCollidables(Consumer<MovingBox> task) {
 		task.accept(this.hitbox);
-
 	}
-
-	@Override
-	public void forEachVisuals(Consumer<I2DRenderable> task) {
-		task.accept(this.visual1);
-		//IRectangle rec = this.interacter.getZone();
-		//rztest.set(rec.getX(), rec.getY(), rec.getWidth(), rec.getHeight());
-		//task.accept(rztest);
-		// task.accept(visualhitbox);
-	}
-
-	protected PlayerTestAttack attacker = new PlayerTestAttack(this);
 
 	@Override
 	public void forEachAttacker(Consumer<IAttacker> task) {
@@ -154,19 +128,34 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 
 	@Override
 	public void forEachAttackables(Consumer<IAttackable> task) {
-		task.accept(this);
-	}
-
-	public void receiveAttack(Enum<?> group, int dmg, Object effect) { // ameliorer la gestion des group d'attaque
-		if (group.equals(AttackGroup.any) || group.equals(AttackGroup.player)) {
-			Log.e("aie");
-		}
+		task.accept(atthitbox);
 	}
 
 	@Override
-	public IRectangle getZone() {
-		return this.hitbox.toInt();
+	public void forEachVisuals(Consumer<I2DRenderable> task) {
+		task.accept(this.visual1);
+		// IRectangle rec = this.interacter.getZone();
+		// rztest.set(rec.getX(), rec.getY(), rec.getWidth(), rec.getHeight());
+		// task.accept(rztest);
+		// task.accept(visualhitbox);
 	}
+
+	protected PlayerTestAttack attacker = new PlayerTestAttack(this);
+
+	protected IAttackable atthitbox = new IAttackable() {
+
+		@Override
+		public IRectangle getZone() {
+			return hitbox.toInt();
+		}
+
+		public void receiveAttack(Enum<?> group, int dmg, Object effect) { // ameliorer la gestion des groupes d'attaque
+			if (group.equals(AttackGroup.any) || group.equals(AttackGroup.player)) {
+				Log.e("aie");
+			}
+		}
+
+	};
 
 	public Cardinal getFacing() {
 		return this.lastdir;

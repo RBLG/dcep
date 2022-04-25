@@ -20,9 +20,7 @@ import engine.game.defaultge.level.type1.entity.actions.GoSomewhereInRange;
 import engine.physic.basic2Dattacks.IAttackable;
 import engine.physic.basic2Dattacks.IHasAttackables;
 import engine.physic.basic2Dvectorial.MovingBox;
-import engine.physic.basic2Dvectorial.MovingBox.INextMotionProvider;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionComputedListener;
-import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionListener;
 import engine.physic.basic2Dvectorial.motionprovider.BasicV2PlayerInput;
 import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.renderable.I2DRenderable;
@@ -30,8 +28,8 @@ import engine.render.engine2d.renderable.LoopingAnimation;
 import engine.render.engine2d.renderable.MapGraphicEntity;
 import engine.render.misc.HitBoxBasedModifier;
 import my.util.Cardinal;
+import my.util.Field;
 import my.util.Gauge;
-import my.util.Log;
 import my.util.geometry.IPoint;
 import my.util.geometry.IPoint.Point;
 import my.util.geometry.IRectangle;
@@ -41,7 +39,7 @@ import res.visual.FolderVideos;
 
 public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHasAttackables, IHasBehaviours, //
 	IAttackable, //
-	IOnCollisionComputedListener, INextMotionProvider {
+	IOnCollisionComputedListener {
 
 	protected MapGraphicEntity<PlayerVState> visual1;
 	protected HitBoxBasedModifier mod;
@@ -54,7 +52,7 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 		room = nroom;
 		scontext = stage.scontext;
 
-		this.hitbox = new MovingBox(npt.getX(), npt.getY(), 20, 17, this, null, this);
+		this.hitbox = new MovingBox(npt.getX(), npt.getY(), 20, 17, (e) -> nextvec.get(), null, this);
 		this.mod = new HitBoxBasedModifier(this.hitbox, new IPoint.Point(0, 0), 0);
 
 		EnumMap<PlayerVState, I2DRenderable> e = new EnumMap<>(PlayerVState.class);
@@ -89,33 +87,16 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 	public void onCollisionComputed(MovingBox box) {
 		this.mod.resetBeginning();
 		IFloatVector vec = this.hitbox.getVec();
-		boolean mov = false;
-		if (Math.abs(vec.getY()) > Math.abs(vec.getX())) {
-			if (vec.getY() != 0) {
-				mov = true;
-				this.lastdir = (vec.getY() > 0) ? Cardinal.south : Cardinal.north;
-			}
-		} else {
-			if (vec.getX() != 0) {
-				mov = true;
-				this.lastdir = (vec.getX() > 0) ? Cardinal.east : Cardinal.west;
-			}
+		Cardinal ndir = Cardinal.getVectorGeneralDirection(vec);
+		if (ndir != null) {
+			lastdir = ndir;
 		}
-		this.visual1.set(PlayerVState.concat(mov, this.lastdir));
+		this.visual1.set(PlayerVState.concat(ndir != null, this.lastdir));
 	}
 
 	protected PathVisualiser pathvis = new PathVisualiser(this.hitbox);
 
-	protected FloatVector nextvec = new FloatVector(0, 0);
-
-	protected void setNextVec(FloatVector nvec) {
-		nextvec = nvec;
-	}
-
-	@Override
-	public FloatVector getNextMotionVector(MovingBox box) {
-		return nextvec;
-	}
+	protected Field<FloatVector> nextvec = new Field<>(new FloatVector(0, 0));
 
 	@Override
 	public void forEachAttackables(Consumer<IAttackable> task) {
@@ -156,17 +137,8 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 		bboard.set("pathvisualiser", this.pathvis);
 		behaviours = new BehaviorCore(//
 			new CheesyRepeatNode(//
-				new GoSomewhereInRange(bboard, room, 200, hitbox, this::setNextVec)//
-					.then(() -> {
-						Log.e("yeet");
-						return Status.completed;
-					}), //
-
+				new GoSomewhereInRange(bboard, room, 200, hitbox, nextvec::set), //
 				new DoForRandomDuration(() -> Status.running, 20, 200)//
-					.then(() -> {
-						Log.e("yoot");
-						return Status.completed;
-					}) //
 			)//
 		);
 
