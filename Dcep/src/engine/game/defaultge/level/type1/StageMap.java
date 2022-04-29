@@ -5,7 +5,6 @@ import java.util.Arrays;
 
 import my.util.Cardinal;
 import my.util.MapHelper;
-import my.util.NotImplementedException;
 import my.util.Sign;
 import my.util.geometry.IPoint;
 import my.util.geometry.IPoint.Point;
@@ -41,7 +40,8 @@ public class StageMap {
 	}
 
 	public void move(Sign nx, Sign ny) {
-		throw new NotImplementedException();
+		current.x += nx.val;
+		current.y += ny.val;
 	}
 
 	public int getRoomAmount() {
@@ -153,6 +153,6 @@ public class StageMap {
 			}
 			ity++;
 		}
-		return null;//arrive jamais
+		return null;// arrive jamais
 	}
 }

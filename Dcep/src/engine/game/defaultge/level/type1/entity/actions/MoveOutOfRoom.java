@@ -20,7 +20,7 @@ public class MoveOutOfRoom implements ParamReceiver<StagePath> {
 	public MoveOutOfRoom(WalkBehaviorPack npack) {
 		pack = npack;
 		genBehavior();
-		genBehavior2();
+		//genBehavior2();
 	}
 
 	protected WalkBehaviorPack pack;
@@ -36,34 +36,35 @@ public class MoveOutOfRoom implements ParamReceiver<StagePath> {
 				}))//
 			.then(() -> {
 				pack.getRoom().leave(pack.entity);
-				pack.getStage().otherents.enter(pack.entity);
+				pack.getStage().stagemap.move(null, null);
+				//pack.getStage().otherents.enter(pack.entity);
 				return Status.completed;
 			})//
 			.end();
 	}
 
-	protected ScriptAction behav2;
-
-	private void genBehavior2() {
-		behav = ScriptAction.New()//
-			.waitFor(1000)//
-			.then(() -> {
-				Cardinal dir = pack.spath.get().next();
-				Point pt = pack.room.get();
-				pt.x += dir.toXMultiplier();
-				pt.y += dir.toYMultiplier();
-				return Status.completed;
-			})//
-			.end();
-	}
+//	protected ScriptAction behav2;
+//
+//	private void genBehavior2() {
+//		behav = ScriptAction.New()//
+//			.waitFor(1000)//
+//			.then(() -> {
+//				Cardinal dir = pack.spath.get().next();
+//				Point pt = pack.room.get();
+//				pt.x += dir.toXMultiplier();
+//				pt.y += dir.toYMultiplier();
+//				return Status.completed;
+//			})//
+//			.end();
+//	}
 
 	@Override
 	public Status doOngoing() {
-		if (pack.getRoom() != null) {
-			return behav.doOngoing();
-		} else {
-			return behav.doOngoing();
-		}
+		// if (pack.getRoom() != null) {
+		return behav.doOngoing();
+		// } else {
+		// return behav.doOngoing();
+		// }
 	}
 
 	@Override
