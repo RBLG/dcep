@@ -13,11 +13,23 @@ import my.util.geometry.IPoint.Point;
 public class StageMap {
 
 	protected Room[][] floor;
-	protected int size;
 	public Point current = new Point(StageGenerator.fcentx, StageGenerator.fcenty);
+	public ArrayList<IPoint> rooms = new ArrayList<>();
 
 	public StageMap(Room[][] nfloor, int rmamount) {
 		floor = nfloor;
+		int ity = 0;
+		for (Room[] row : floor) {
+			int itx = 0;
+			for (Room room : row) {
+				if (room != null) {
+					rooms.add(new Point(itx, ity));
+				}
+				itx++;
+			}
+			ity++;
+		}
+
 	}
 
 	public Room getCurrent() {
@@ -33,7 +45,7 @@ public class StageMap {
 	}
 
 	public int getRoomAmount() {
-		return size;
+		return rooms.size();
 	}
 
 	/***
@@ -43,6 +55,9 @@ public class StageMap {
 	 * @return
 	 */
 	protected int[][] getSonar(IPoint end) {
+		if (!MapHelper.isIn(floor, end)) {
+			return null;
+		}
 		int[][] sonar = getIntFormat();
 		for (int[] sona : sonar) {
 			Arrays.fill(sona, Integer.MAX_VALUE);
@@ -83,10 +98,10 @@ public class StageMap {
 		return array[x][y];
 	}
 
-	public ArrayList<Cardinal> getPath(IPoint start, IPoint end) {
+	public StagePath getPath(IPoint start, IPoint end) {
 		ArrayList<Cardinal> path = new ArrayList<>();
 		if (start.Equals(end)) {
-			return path;
+			return new StagePath(path);
 		}
 		int[][] sonar = getSonar(end);
 		if (!(getIfIn(sonar, start) != Integer.MAX_VALUE)) {
@@ -109,10 +124,35 @@ public class StageMap {
 			last = next;
 			path.add(ndir);
 		}
-		return path;
+		return new StagePath(path);
 	}
 
 	public int[][] getIntFormat() {
 		return new int[floor.length][floor[0].length];
+	}
+
+	public Room getRoom(IPoint pt) {
+		return floor[pt.getX()][pt.getY()];
+	}
+
+	public Room get(IPoint pt) {
+		return floor[pt.getX()][pt.getY()];
+	}
+
+	public Point getPos(Room nroom) {
+		int ity = 0;
+		for (Room[] row : floor) {
+			int itx = 0;
+			for (Room room : row) {
+				if (room != null) {
+					if (room.equals(nroom)) {
+						return new Point(itx, ity);
+					}
+				}
+				itx++;
+			}
+			ity++;
+		}
+		return null;//arrive jamais
 	}
 }

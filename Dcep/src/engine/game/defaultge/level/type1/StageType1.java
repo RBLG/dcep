@@ -23,6 +23,8 @@ import my.util.geometry.IPoint.Point;
 
 public class StageType1 extends StageEngine implements ITreeNodeRenderable {
 
+	public StageMap stagemap;
+
 	protected Room[][] floor;
 	public Point current = new Point(StageGenerator.fcentx, StageGenerator.fcenty);
 	protected PlayerEntityV3 player;
@@ -30,14 +32,11 @@ public class StageType1 extends StageEngine implements ITreeNodeRenderable {
 
 	public StageContext scontext;
 
-	// public Scene topscene = new Scene();
 	public RenderableList scene = new RenderableList();
 
 	public StateCore guifsm = new StateCore();
 
-	// public State e;
-
-	// public State e;
+	public StageEntityHolder otherents;
 
 	public StageType1(GameContext gcontext) {
 		super();
@@ -46,6 +45,8 @@ public class StageType1 extends StageEngine implements ITreeNodeRenderable {
 		this.floor = StageGenerator.genFloor(this);
 		this.player = new PlayerEntityV3(scontext);
 
+		stagemap = new StageMap(floor, StageGenerator.roomperstage);
+		
 		guifsm.add(new DungeonCrawlingState(this));
 	}
 

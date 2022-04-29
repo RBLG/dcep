@@ -4,15 +4,17 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 
 import engine.entityfw.EntityWackSystem;
+import engine.entityfw.components.IHasCollidable;
 import engine.entityfw.components.IHasInteractables;
+import engine.entityfw.subsystems.EntitySubSystem;
 import engine.entityfw.subsystems.EntitySubscriber;
 import engine.entityfw.subsystems.VisualESS;
 import engine.entityfwp2.ai.BehavioursESS;
 import engine.game.defaultge.level.type1.RoomPool.DoorType;
 import engine.game.defaultge.level.type1.entity.PlayerEntityV3;
 import engine.game.defaultge.level.type1.entity.WandererTest;
+import engine.game.defaultge.level.type1.interactions.IRoomTraverserEntity;
 import engine.game.defaultge.level.type1.interactions.RoomInteractableHaver;
-import engine.game.defaultge.level.type1.entity.IRoomTraverserEntity;
 import engine.physic.basic2DInteractionV3.InteractionESS;
 import engine.physic.basic2Dattacks.AttackESS;
 import engine.physic.basic2Dattacks.IHasAttackables;
@@ -65,6 +67,13 @@ public class Room implements ITreeNodeRenderable {
 		RoomGenerator.genRoom(this, pool, ndoors);
 		pathfinder = new PathFinder(state.navmesh, state.navmjunctions);
 		RoomVisualGenerator.genVisual(this);
+
+		this.ews.add(new EntitySubSystem<IHasCollidable>(IHasCollidable.class) {
+			@Override
+			public void update() {
+				this.components.forEach((comp) -> comp.forEachCollidables((col) -> col.applyMotion()));
+			}
+		});
 
 		this.ews.add(new BehavioursESS());
 		this.ews.add(new CollisionESS(walls));

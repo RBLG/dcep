@@ -8,6 +8,7 @@ import engine.entityfw.components.IHasCollidable;
 import engine.entityfw.components.IHasVisuals;
 import engine.game.defaultge.level.type1.Room;
 import engine.game.defaultge.level.type1.StageType1;
+import engine.game.defaultge.level.type1.interactions.IRoomTraverserEntity;
 import engine.physic.basic2Dattacks.IAttackable;
 import engine.physic.basic2Dattacks.IHasAttackables;
 import engine.physic.basic2Dvectorial.MovingBox;

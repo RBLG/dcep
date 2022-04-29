@@ -10,18 +10,18 @@ import engine.entityfw.components.IHasVisuals;
 import engine.entityfwp2.ai.BehaviorCore;
 import engine.entityfwp2.ai.Blackboard;
 import engine.entityfwp2.ai.IHasBehaviours;
+import engine.entityfwp2.ai.action.DoForRandomDuration;
 import engine.entityfwp2.ai.action.IAction.Status;
-import engine.entityfwp2.ai.condition.DoForRandomDuration;
 import engine.entityfwp2.ai.nodes.CheesyRepeatNode;
 import engine.game.defaultge.level.type1.Room;
 import engine.game.defaultge.level.type1.StageContext;
 import engine.game.defaultge.level.type1.StageType1;
-import engine.game.defaultge.level.type1.entity.actions.GoSomewhereInRange;
+import engine.game.defaultge.level.type1.entity.actions.FindPathToRandomPointInRange;
+import engine.game.defaultge.level.type1.entity.actions.MoveToPoint;
 import engine.physic.basic2Dattacks.IAttackable;
 import engine.physic.basic2Dattacks.IHasAttackables;
 import engine.physic.basic2Dvectorial.MovingBox;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionComputedListener;
-import engine.physic.basic2Dvectorial.motionprovider.BasicV2PlayerInput;
 import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.renderable.I2DRenderable;
 import engine.render.engine2d.renderable.LoopingAnimation;
@@ -44,7 +44,6 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 	protected MapGraphicEntity<PlayerVState> visual1;
 	protected HitBoxBasedModifier mod;
 	public StageContext scontext;
-	protected BasicV2PlayerInput motprov;
 	protected MovingBox hitbox;
 	protected Room room;
 
@@ -124,21 +123,21 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 		});
 	}
 
-	protected Blackboard bboard = new Blackboard();
-	protected BehaviorCore behaviours;
-
 	@Override
 	public void think(Consumer<BehaviorCore> task) {
 		this.behaviours.run(0);
 	}
 
+	protected Blackboard bboard = new Blackboard();
+	protected BehaviorCore behaviours;
+
 	private void genBehaviours() {
-		// bboard.set("room", room);
 		bboard.set("pathvisualiser", this.pathvis);
 		behaviours = new BehaviorCore(//
 			new CheesyRepeatNode(//
-				new GoSomewhereInRange(bboard, room, 200, hitbox, nextvec::set), //
-				new DoForRandomDuration(() -> Status.running, 20, 200)//
+				new DoForRandomDuration(() -> Status.running, 20, 200), //
+				new FindPathToRandomPointInRange(bboard, room, hitbox, 200)//
+					.then(new MoveToPoint(hitbox, nextvec::set))//
 			)//
 		);
 

@@ -99,4 +99,19 @@ public enum Side {
 		}
 	}
 
+	public static Side fromCardinal(Cardinal cardi) {
+		switch (cardi) {
+		case north:
+			return north;
+		case south:
+			return south;
+		case west:
+			return west;
+		case east:
+			return east;
+		default:
+			return null;
+		}
+	}
+
 }

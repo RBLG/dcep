@@ -1,4 +1,4 @@
-package engine.game.defaultge.level.type1.entity;
+package engine.game.defaultge.level.type1.interactions;
 
 import engine.entityfw.IEntityV3;
 import engine.game.defaultge.level.type1.Room;
@@ -8,7 +8,5 @@ public interface IRoomTraverserEntity extends IEntityV3 {
 
 	public void enter(Room room, Cardinal dir);
 
-	public void leave(Room room);
-
-	
+	public void leave(Room room);	
 }

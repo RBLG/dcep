@@ -10,6 +10,7 @@ import engine.game.defaultge.level.type1.Room;
 import engine.game.defaultge.level.type1.StageContext;
 import engine.game.defaultge.level.type1.attacks.AttackGroup;
 import engine.game.defaultge.level.type1.attacks.PlayerTestAttack;
+import engine.game.defaultge.level.type1.interactions.IRoomTraverserEntity;
 import engine.game.defaultge.level.type1.interactions.PlayerInteracter;
 import engine.physic.basic2DInteractionV3.IInteracter;
 import engine.physic.basic2Dattacks.IAttackable;

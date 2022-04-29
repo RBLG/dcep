@@ -9,11 +9,11 @@ import engine.game.defaultge.level.type1.Room;
 import engine.physic.basic2Dvectorial.MovingBox;
 import engine.physic.basic2Dvectorial.pathfinding.Path;
 import engine.physic.basic2Dvectorial.pathfinding.PathFinder;
-import my.util.Log;
 import my.util.geometry.floats.IFloatPoint;
 import my.util.geometry.floats.IFloatVector;
 import my.util.geometry.floats.IFloatVector.FloatVector;
 
+@Deprecated
 public class GoSomewhereInRange implements IAction {
 
 	public GoSomewhereInRange(Blackboard nboard, Room nroom, int nrange, MovingBox nbox,
@@ -39,14 +39,12 @@ public class GoSomewhereInRange implements IAction {
 
 	@Override
 	public void start() {
-		// path = null;
-		Log.e("start");
+		path = null;
 	}
 
 	@Override
 	public Status doOngoing() {
 		box.applyMotion();
-		//Room room = board.getOrNull("room", Room.class);
 		IFloatPoint xy = box.getXY();
 		if (path == null) {
 			if (room != null) {
