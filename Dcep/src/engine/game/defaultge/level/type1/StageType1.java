@@ -135,4 +135,18 @@ public class StageType1 extends StageEngine implements ITreeNodeRenderable {
 		// this.topscene.render(r, g, time, scx, scy);
 		this.guifsm.prepare(wt, res, time, px, py, vx, vy);
 	}
+
+	public void updateStageMap(long time) {
+		for (Room[] row : floor) {
+			for (Room room : row) {
+				if (room != null) {
+					if (room.equals(getCurrent())) {
+						room.update(time);
+					} else {
+						room.bgUpdateIfNeeded(time);
+					}
+				}
+			}
+		}
+	}
 }

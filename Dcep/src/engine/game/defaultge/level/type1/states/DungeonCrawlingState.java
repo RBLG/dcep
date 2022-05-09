@@ -13,7 +13,8 @@ public class DungeonCrawlingState implements IState {
 
 	@Override
 	public void run2(long time) {
-		stage.getCurrent().update(time);
+		stage.updateStageMap(time);
+		//stage.getCurrent().update(time);
 		stage.scontext.getInputE().ifPressed(Keys.tab.value, () -> {
 			stage.guifsm.add(new MapMenuState(stage));
 		});

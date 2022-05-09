@@ -8,6 +8,7 @@ import engine.entityfw.components.IHasCollidable;
 import engine.entityfw.components.IHasVisuals;
 import engine.entityfwp2.ai.BehaviorCore;
 import engine.entityfwp2.ai.IHasBehaviours;
+import engine.game.defaultge.level.type1.IBgModeNeeder;
 import engine.game.defaultge.level.type1.Room;
 import engine.game.defaultge.level.type1.StageContext;
 import engine.game.defaultge.level.type1.StageType1;
@@ -26,7 +27,8 @@ import my.util.geometry.IPoint.Point;
 import my.util.geometry.floats.IFloatVector.FloatVector;
 import res.visual.FolderVideos;
 
-public class LeaverTester implements IEntityV3, IHasVisuals, IHasCollidable, IHasAttackables, IHasBehaviours {
+public class LeaverTester
+	implements IEntityV3, IHasVisuals, IHasCollidable, IHasAttackables, IHasBehaviours, IBgModeNeeder {
 	protected MapGraphicEntity<PlayerVState> visual1;
 	protected HitBoxBasedModifier mod;
 	public StageContext scontext;

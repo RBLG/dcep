@@ -6,6 +6,7 @@ import java.util.EnumMap;
 import engine.entityfw.EntityWackSystem;
 import engine.entityfw.components.IHasInteractables;
 import engine.entityfw.subsystems.EntitySubscriber;
+import engine.entityfw.subsystems.IEntitySubworker;
 import engine.entityfw.subsystems.VisualESS;
 import engine.entityfwp2.ai.BehavioursESS;
 import engine.game.defaultge.level.type1.RoomPool.DoorType;
@@ -42,12 +43,17 @@ public class Room implements ITreeNodeRenderable {
 	public EnumMap<Side, Door> doors;
 	public EnumMap<Cardinal, ArrayList<ISegment>> walls;
 	protected ArrayList<I2DRenderable> visuals = new ArrayList<>();
-	protected EntityWackSystem ews;
+	protected EntityWackSystem<Modes> ews;
 	protected VisualESS visualess = new VisualESS();
 	protected RoomInteractableHaver interactables = new RoomInteractableHaver(this);
+	protected EntitySubscriber<IBgModeNeeder> bgmsubscriber = new EntitySubscriber<>(IBgModeNeeder.class);
 
 	protected PathFinder pathfinder;
 	public int index; // index pour le sonar
+
+	public static enum Modes {
+		active, background;
+	}
 
 	/**
 	 * doors[] -> n,s,e,w
@@ -57,8 +63,7 @@ public class Room implements ITreeNodeRenderable {
 	 * @param doors
 	 */
 	public Room(StageType1 stage, int offsetx, int offsety, ArrayList<RoomState> pool, DoorType[] ndoors) {
-		this.ews = new EntityWackSystem();
-		this.scene = new RenderableList(offsetx, offsety);
+		scene = new RenderableList(offsetx, offsety);
 
 		// TODO rework pour que les generators ne modifie pas directement Room, c'est
 		// pas lisible
@@ -66,21 +71,33 @@ public class Room implements ITreeNodeRenderable {
 		pathfinder = new PathFinder(state.navmesh, state.navmjunctions);
 		RoomVisualGenerator.genVisual(this);
 
-		this.ews.add(new BehavioursESS());
-		this.ews.add(new CollisionESS(walls));
-		this.ews.add(visualess);
-		this.scene.add(this.visualess);
+		// initialisation du mode principal
+		ews = new EntityWackSystem<>(Modes.active);
+		BehavioursESS behav = new BehavioursESS();
+		ews.add(behav);
+		CollisionESS coli = new CollisionESS(walls);
+		ews.add(coli);
+		scene.add(visualess);
+		ews.add(visualess);
 		EntitySubscriber<IHasInteractables> interactables = new EntitySubscriber<>(IHasInteractables.class);
-		this.ews.add(interactables);
-		this.ews.add(new InteractionESS(interactables));
+		ews.add(interactables);
+		ews.add(new InteractionESS(interactables));
 		EntitySubscriber<IHasAttackables> attackables = new EntitySubscriber<>(IHasAttackables.class);
-		this.ews.add(attackables);
-		this.ews.add(new AttackESS(attackables));
+		ews.add(attackables);
+		ews.add(new AttackESS(attackables));
 
-		// a la fin de l'instantiation des ess (au cas ou j'ai envie d'en ajouter plus)
-		this.ews.add(this.interactables);
-		this.ews
-			.add(new WandererTest(stage, this, this.pathfinder.getRandomPoint(new IRectangle.Rectangle(0, 0, 20, 17))));
+		// initiation du mode background
+		ArrayList<IEntitySubworker> alt = new ArrayList<>();
+		alt.add(behav);
+		alt.add(coli);
+		ews.addAltMode(Modes.background, alt);
+
+		// le trick pour savoir si besoin de run room en mode background
+		ews.add(this.bgmsubscriber.asSubsc());
+
+		/// !entités a partir d'ici!
+		ews.add(this.interactables);// techniquement c'est une entité
+		ews.add(new WandererTest(stage, this, this.pathfinder.getRandomPoint(new IRectangle.Rectangle(0, 0, 20, 17))));
 
 		scene.setVisible(false);
 		// TODO clean les artifacts de RoomVisuals
@@ -102,14 +119,14 @@ public class Room implements ITreeNodeRenderable {
 	 * @param dir
 	 */
 	public void playerEnter(Cardinal dir, PlayerEntityV3 ent) {
-		this.enter(dir, ent);
-		this.scene.setVisible(true);
+		enter(dir, ent);
+		scene.setVisible(true);
 
 	}
 
 	public void enter(Cardinal dir, IRoomTraverserEntity ent) {
 		ent.enter(this, dir);
-		this.ews.add(ent);
+		ews.add(ent);
 
 	}
 
@@ -120,11 +137,11 @@ public class Room implements ITreeNodeRenderable {
 
 	public void leave(IRoomTraverserEntity ent) {
 		ent.leave(this);
-		this.ews.remove(ent);
+		ews.remove(ent);
 	}
 
 	public void update(long time) {
-		this.ews.run(time);
+		ews.run(time);
 	}
 
 	public PathFinder getPathfinder() {
@@ -138,13 +155,23 @@ public class Room implements ITreeNodeRenderable {
 		return pathfinder.getPathFromTo(rec.getXY(), doors.get(side).getZone().getCenter(), rec);
 	}
 
-	public EntityWackSystem getEWS() {
-		return this.ews;
+	public EntityWackSystem<?> getEWS() {
+		return ews;
 	}
 
 	@Override
 	public void prepare(IWaitlist wt, int res, long time, double px, double py, double vx, double vy) {
 		this.scene.prepare(wt, res, time, px, py, vx, vy);
+	}
+
+	public boolean doesContainBgNeeders() {
+		return this.bgmsubscriber.getComponents().size() != 0;
+	}
+
+	public void bgUpdateIfNeeded(long time) {
+		if (doesContainBgNeeders()) {
+			ews.run(time);
+		}
 	}
 
 }
