@@ -1,4 +1,4 @@
-package engine.game;
+package engine.game.defaultge;
 
 public interface IGameEngine {
 	

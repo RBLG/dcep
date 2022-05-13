@@ -4,8 +4,10 @@ import engine.game.defaultge.DefaultGameEngine;
 import engine.game.defaultge.GameContext;
 import engine.game.defaultge.level.IStageEngine;
 import engine.game.defaultge.level.StageEngine;
+import engine.game.defaultge.level.type1.entity.LeaverTester;
 import engine.game.defaultge.level.type1.entity.PathfindingTester;
 import engine.game.defaultge.level.type1.entity.PlayerEntityV3;
+import engine.game.defaultge.level.type1.entity.RandomRoomWalker;
 import engine.game.defaultge.level.type1.states.DungeonCrawlingState;
 import engine.misc.util2d.position.IMotionModifier;
 import engine.misc.util2d.position.NoModifier;
@@ -23,29 +25,26 @@ import my.util.geometry.IPoint.Point;
 
 public class StageType1 extends StageEngine implements ITreeNodeRenderable {
 
-	protected Room[][] floor;
+	public Room[][] floor;
 	public Point current = new Point(StageGenerator.fcentx, StageGenerator.fcenty);
 	protected PlayerEntityV3 player;
 	public StageVisualMap map = new StageVisualMap();
 
 	public StageContext scontext;
+	public StageMap stagemap;
 
 	// public Scene topscene = new Scene();
 	public RenderableList scene = new RenderableList();
 
 	public StateCore guifsm = new StateCore();
 
-	// public State e;
-
-	// public State e;
-
 	public StageType1(GameContext gcontext) {
 		super();
-
 		this.scontext = new StageContext(gcontext, this);
 		this.floor = StageGenerator.genFloor(this);
 		this.player = new PlayerEntityV3(scontext);
 
+		stagemap = new StageMap(floor);
 		guifsm.add(new DungeonCrawlingState(this));
 	}
 
@@ -58,15 +57,18 @@ public class StageType1 extends StageEngine implements ITreeNodeRenderable {
 	public void start(DefaultGameEngine ge) {
 		this.scene.setVisible(true);
 		this.setCamOnRoom(this.current.x, this.current.y);
-
 		this.getCurrent().playerEnter(Cardinal.north, this.player);
 		ge.startDefaultLoop(this);
 	}
 
+	protected State betweenroom = new State(null, (ITreeNodeRenderable) (wt, res, time, px, py, vx, vy) -> {
+		this.scene.prepare(wt, res, time, px, py, vx, vy);
+	});
+
 	public void moveRoom(Cardinal dir) {
 
 		/////////////////////////// RN////////////
-		Room pre = this.getCurrent();
+		Room pre = getCurrent();
 		int mx = dir.toXMultiplier();
 		int my = dir.toYMultiplier();
 		if (this.floor[current.x + mx][current.y + my] == null) {
@@ -76,17 +78,14 @@ public class StageType1 extends StageEngine implements ITreeNodeRenderable {
 		this.current.x += mx;
 		this.current.y += my;
 
-		Room post = this.getCurrent();
-		State betweenroom = new State(null, (ITreeNodeRenderable) (wt, res, time, px, py, vx, vy) -> {
-			this.scene.prepare(wt, res, time, px, py, vx, vy);
-		});
-		this.guifsm.add(betweenroom);
-		this.moveCamByOffset(mx, my, 600);
+		Room post = getCurrent();
+		guifsm.add(betweenroom);
+		moveCamByOffset(mx, my, 600);
 		//////////////// ENTRE L'ENTRE ET SORTIE/////////
 		StepEvent.start().then(GameTick.fromMillis(300), (long time) -> { // était à 300ms
 			pre.update(time);
-			pre.playerLeave(this.player);
-			post.playerEnter(dir, this.player);
+			pre.playerLeave(player);
+			post.playerEnter(dir, player);
 			post.update(time);
 		}).then(GameTick.fromMillis(350), (long time) -> { // était a 650ms
 			/////////////// FIN////////////////////
@@ -122,10 +121,22 @@ public class StageType1 extends StageEngine implements ITreeNodeRenderable {
 	}
 
 	public void addTester() {
-		scontext.getInputE().ifPressed(Keys.space.value, () -> {
+		scontext.getInputE().ifPressed(Keys.n1.value, () -> {
 			PathfindingTester pft = new PathfindingTester(this);
 			this.getCurrent().enter(Cardinal.north, pft);
-			Log.log(this, "new tester");
+			Log.log("new tester");
+		});
+		scontext.getInputE().ifPressed(Keys.n2.value, () -> {
+			RandomRoomWalker pft = new RandomRoomWalker(this);
+			getCurrent().enter(Cardinal.north, pft);
+			pft.spawn(getCurrent());
+			Log.log("new rrwalker");
+		});
+		scontext.getInputE().ifPressed(Keys.n3.value, () -> {
+			LeaverTester pft = new LeaverTester(this);
+			getCurrent().enter(Cardinal.north, pft);
+			pft.spawn(getCurrent());
+			Log.log("new leavertester");
 		});
 	}
 
@@ -143,10 +154,27 @@ public class StageType1 extends StageEngine implements ITreeNodeRenderable {
 					if (room.equals(getCurrent())) {
 						room.update(time);
 					} else {
+						// room.update(time);
 						room.bgUpdateIfNeeded(time);
 					}
 				}
 			}
 		}
+	}
+
+	// TODO rework pour pas avoir besoin de ça
+	public Point getRoomPos(Room goal) {
+		int iy = 0;
+		for (Room[] row : floor) {
+			int ix = 0;
+			for (Room room : row) {
+				if (goal.equals(room)) {
+					return new Point(ix, iy);
+				}
+				ix++;
+			}
+			iy++;
+		}
+		return null;
 	}
 }

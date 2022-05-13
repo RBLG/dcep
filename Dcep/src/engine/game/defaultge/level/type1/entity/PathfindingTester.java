@@ -54,7 +54,7 @@ public class PathfindingTester implements IRoomTraverserEntity, IHasVisuals, IHa
 	protected boolean done = false;
 
 	@Override
-	public FloatVector getNextMotionVector(MovingBox box) {
+	public FloatVector getNextMotionVector() {
 		IRectangle intrec = hitbox.toInt();
 		if (done) {
 			return new FloatVector(0, 0);

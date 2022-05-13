@@ -2,7 +2,6 @@ package engine.game.defaultge.level.type1.entity;
 
 import java.util.EnumMap;
 import java.util.function.Consumer;
-
 import debug.PathVisualiser;
 import engine.entityfw.IEntityV3;
 import engine.entityfw.components.IHasCollidable;
@@ -46,13 +45,13 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 	public StageContext scontext;
 	protected BasicV2PlayerInput motprov;
 	protected MovingBox hitbox;
-	protected Room room;
+	protected Field<Room> room = new Field<>();
 
 	public WandererTest(StageType1 stage, Room nroom, IPoint npt) {
-		room = nroom;
+		room.set(nroom);
 		scontext = stage.scontext;
 
-		this.hitbox = new MovingBox(npt.getX(), npt.getY(), 20, 17, (e) -> nextvec.get(), null, this);
+		this.hitbox = new MovingBox(npt.getX(), npt.getY(), 20, 17, nextvec::get, null, this);
 		this.mod = new HitBoxBasedModifier(this.hitbox, new IPoint.Point(0, 0), 0);
 
 		EnumMap<PlayerVState, I2DRenderable> e = new EnumMap<>(PlayerVState.class);
@@ -120,7 +119,7 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 
 	protected void die() {
 		scontext.getGcontext().EventE.cleanup.add((time) -> {
-			room.getEWS().remove(this);
+			room.get().getEWS().remove(this);
 		});
 	}
 
@@ -137,7 +136,7 @@ public class WandererTest implements IEntityV3, IHasVisuals, IHasCollidable, IHa
 		bboard.set("pathvisualiser", this.pathvis);
 		behaviours = new BehaviorCore(//
 			new CheesyRepeatNode(//
-				new GoSomewhereInRange(bboard, room, 200, hitbox, nextvec::set), //
+				new GoSomewhereInRange(bboard, room::get, 200, hitbox, nextvec::set), //
 				new DoForRandomDuration(() -> Status.running, 20, 200)//
 			)//
 		);

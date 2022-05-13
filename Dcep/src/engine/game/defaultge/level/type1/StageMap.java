@@ -2,8 +2,10 @@ package engine.game.defaultge.level.type1;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
 import my.util.Cardinal;
+import my.util.Log;
 import my.util.MapHelper;
 import my.util.NotImplementedException;
 import my.util.Sign;
@@ -13,11 +15,22 @@ import my.util.geometry.IPoint.Point;
 public class StageMap {
 
 	protected Room[][] floor;
-	protected int size;
+	public ArrayList<IPoint> rooms = new ArrayList<>();
 	public Point current = new Point(StageGenerator.fcentx, StageGenerator.fcenty);
 
-	public StageMap(Room[][] nfloor, int rmamount) {
+	public StageMap(Room[][] nfloor) {
 		floor = nfloor;
+		int itx = 0;
+		for (Room[] row : floor) {
+			int ity = 0;
+			for (Room room : row) {
+				if (room != null) {
+					rooms.add(new Point(itx, ity));
+				}
+				ity++;
+			}
+			itx++;
+		}
 	}
 
 	public Room getCurrent() {
@@ -33,7 +46,7 @@ public class StageMap {
 	}
 
 	public int getRoomAmount() {
-		return size;
+		return rooms.size();
 	}
 
 	/***
@@ -43,6 +56,9 @@ public class StageMap {
 	 * @return
 	 */
 	protected int[][] getSonar(IPoint end) {
+		if (!MapHelper.isIn(floor, end)) {
+			return null;
+		}
 		int[][] sonar = getIntFormat();
 		for (int[] sona : sonar) {
 			Arrays.fill(sona, Integer.MAX_VALUE);
@@ -83,15 +99,16 @@ public class StageMap {
 		return array[x][y];
 	}
 
-	public ArrayList<Cardinal> getPath(IPoint start, IPoint end) {
+	public StagePath getPath(IPoint start, IPoint end) {
 		ArrayList<Cardinal> path = new ArrayList<>();
 		if (start.Equals(end)) {
-			return path;
+			return new StagePath(path);
 		}
 		int[][] sonar = getSonar(end);
 		if (!(getIfIn(sonar, start) != Integer.MAX_VALUE)) {
-			return null;
+			return null; // est pas censé arriver, le stage est tjr relié
 		}
+		Log.log("st: " + start.getX() + "/" + start.getY() + " en: " + end.getX() + "/" + end.getY());
 		IPoint last = start;
 		while (!last.Equals(end)) {
 			int min = Integer.MAX_VALUE;
@@ -107,12 +124,20 @@ public class StageMap {
 				}
 			}
 			last = next;
+			System.out.print(ndir.toString() + ",");
 			path.add(ndir);
 		}
-		return path;
+		System.out.println();
+		return new StagePath(path);
 	}
 
 	public int[][] getIntFormat() {
 		return new int[floor.length][floor[0].length];
+	}
+
+	static private final Random rand = new Random();
+
+	public IPoint getRandomRoom() {
+		return rooms.get(rand.nextInt(rooms.size()));
 	}
 }

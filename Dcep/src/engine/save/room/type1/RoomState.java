@@ -19,9 +19,7 @@ public class RoomState implements Serializable {
 
 	private static final long serialVersionUID = 3636697824805539964L;
 
-	// public final int[][] boxes;
 	public final HashMap<Integer, EnumMap<Cardinal, ArrayList<ISegment>>> walls;
-	// public final Door[] doors;
 	public final EnumMap<Side, Door> doors;
 	public final ArrayList<Tile> navmesh; // chemins que les entités peuvent suivre
 	public final ArrayList<Junction> navmjunctions;
@@ -30,12 +28,12 @@ public class RoomState implements Serializable {
 	public final String visconfpath;
 
 	public RoomState(//
-			HashMap<Integer, EnumMap<Cardinal, ArrayList<ISegment>>> nwalls, EnumMap<Side, Door> ndoors, //
-			ArrayList<Tile> nnavmesh, //
-			ArrayList<Junction> njunctions, //
-			RoomType ntype, //
-			ArrayList<WallSlice> nwallslices, //
-			String nvisconfpath //
+		HashMap<Integer, EnumMap<Cardinal, ArrayList<ISegment>>> nwalls, EnumMap<Side, Door> ndoors, //
+		ArrayList<Tile> nnavmesh, //
+		ArrayList<Junction> njunctions, //
+		RoomType ntype, //
+		ArrayList<WallSlice> nwallslices, //
+		String nvisconfpath //
 	) {
 		// boxes = nboxes;
 		walls = nwalls;
@@ -51,19 +49,14 @@ public class RoomState implements Serializable {
 		return doors;
 	}
 
-	public Point getDoorFront(Cardinal dir, IPoint wh) {
-		RoomState.Door entrydoor = null;
-		for (RoomState.Door door : doors.values()) {
-			if (door.side.toOposite().toCardinal() == dir) {
-				entrydoor = door;
-			}
+	public Point getEntryPointFromDir(Cardinal dir, IPoint wh) {
+		RoomState.Door entrydoor = doors.get(Side.as(dir).toOposite());
+		// TODO virer ou rendre plus clean//
+		if (entrydoor == null) {// si pas de porte
+			//entrydoor = new RoomState.Door(Side.north, 10, 50);
+			return new Point(Room.rosizex / 2, Room.rosizey / 2);
 		}
-		if (entrydoor == null) {// ne devrait jamais arriver
-			entrydoor = new RoomState.Door(Side.north, 10, 50);
-		}
-		// TODO passer de side a cardinal pour simplifier la recup de porte
-		// entrydoor = doors.get(dir.toOposite());
-
+		////
 		return entrydoor.getFront(wh);
 	}
 

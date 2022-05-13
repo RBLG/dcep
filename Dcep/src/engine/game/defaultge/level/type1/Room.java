@@ -29,7 +29,7 @@ import engine.save.room.type1.RoomState;
 import engine.save.room.type1.Side;
 import engine.save.room.type1.RoomState.Door;
 import my.util.Cardinal;
-import my.util.geometry.IPoint.Point;
+import my.util.geometry.IPoint;
 import my.util.geometry.IRectangle;
 
 public class Room implements ITreeNodeRenderable {
@@ -41,18 +41,21 @@ public class Room implements ITreeNodeRenderable {
 	protected RenderableList scene;
 	public RoomState state;
 	public EnumMap<Side, Door> doors;
+	// TODO rework pour que ça soit plus clean
+	public DoorType[] doors2;
 	public EnumMap<Cardinal, ArrayList<ISegment>> walls;
 	protected ArrayList<I2DRenderable> visuals = new ArrayList<>();
 	protected EntityWackSystem<Modes> ews;
 	protected VisualESS visualess = new VisualESS();
 	protected RoomInteractableHaver interactables = new RoomInteractableHaver(this);
 	protected EntitySubscriber<IBgModeNeeder> bgmsubscriber = new EntitySubscriber<>(IBgModeNeeder.class);
+	public IPoint pos;
 
 	protected PathFinder pathfinder;
 	public int index; // index pour le sonar
 
 	public static enum Modes {
-		active, background;
+		active, background, visual;
 	}
 
 	/**
@@ -60,17 +63,21 @@ public class Room implements ITreeNodeRenderable {
 	 * 
 	 * @param offsetx
 	 * @param offsety
+	 * @param point
 	 * @param doors
 	 */
-	public Room(StageType1 stage, int offsetx, int offsety, ArrayList<RoomState> pool, DoorType[] ndoors) {
+	public Room(StageType1 stage, int offsetx, int offsety, ArrayList<RoomState> pool, DoorType[] ndoors, IPoint npos) {
 		scene = new RenderableList(offsetx, offsety);
+		pos = npos;
 
+		doors2 = ndoors;
 		// TODO rework pour que les generators ne modifie pas directement Room, c'est
 		// pas lisible
 		RoomGenerator.genRoom(this, pool, ndoors);
 		pathfinder = new PathFinder(state.navmesh, state.navmjunctions);
 		RoomVisualGenerator.genVisual(this);
 
+		
 		// initialisation du mode principal
 		ews = new EntityWackSystem<>(Modes.active);
 		BehavioursESS behav = new BehavioursESS();
@@ -91,6 +98,11 @@ public class Room implements ITreeNodeRenderable {
 		alt.add(behav);
 		alt.add(coli);
 		ews.addAltMode(Modes.background, alt);
+
+		// initilisation du mode update visuel
+		alt = new ArrayList<>();
+		alt.add(visualess);
+		ews.addAltMode(Modes.visual, alt);
 
 		// le trick pour savoir si besoin de run room en mode background
 		ews.add(this.bgmsubscriber.asSubsc());
@@ -149,10 +161,10 @@ public class Room implements ITreeNodeRenderable {
 	}
 
 	public Path getPathToDoor(IRectangle rec, Side side) {
-		Point dpt = new Point(doors.get(side).getZone().getCenter());
-		dpt.x = Integer.max(0, dpt.x - rec.getWidth());
-		dpt.y = Integer.max(0, dpt.y - rec.getHeight());
-		return pathfinder.getPathFromTo(rec.getXY(), doors.get(side).getZone().getCenter(), rec);
+		// Point dpt = new Point(doors.get(side).getFront(rec.getWH()));
+		// dpt.x = Integer.max(0, dpt.x - rec.getWidth());
+		// dpt.y = Integer.max(0, dpt.y - rec.getHeight());
+		return pathfinder.getPathFromTo(rec.getXY(), doors.get(side).getFront(rec.getWH()), rec);
 	}
 
 	public EntityWackSystem<?> getEWS() {
@@ -170,8 +182,13 @@ public class Room implements ITreeNodeRenderable {
 
 	public void bgUpdateIfNeeded(long time) {
 		if (doesContainBgNeeders()) {
-			ews.run(time);
+			// ews.run(time);
+			ews.run(time, Modes.background);
 		}
+	}
+
+	public void visualupdate(long time) {
+		ews.run(time, Modes.visual);
 	}
 
 }

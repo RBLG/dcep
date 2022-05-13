@@ -1,6 +1,5 @@
 package engine.game.defaultge;
 
-import engine.game.IGameEngine;
 import engine.game.defaultge.level.IStageEngine;
 import engine.input.IInputEngine;
 import engine.render.engine2d.Basic2DEngine;

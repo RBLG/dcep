@@ -1,6 +1,7 @@
 package engine.game.defaultge.level.type1.entity.actions;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import debug.PathVisualiser;
 import engine.entityfwp2.ai.Blackboard;
@@ -9,14 +10,13 @@ import engine.game.defaultge.level.type1.Room;
 import engine.physic.basic2Dvectorial.MovingBox;
 import engine.physic.basic2Dvectorial.pathfinding.Path;
 import engine.physic.basic2Dvectorial.pathfinding.PathFinder;
-import my.util.Log;
 import my.util.geometry.floats.IFloatPoint;
 import my.util.geometry.floats.IFloatVector;
 import my.util.geometry.floats.IFloatVector.FloatVector;
 
 public class GoSomewhereInRange implements IAction {
 
-	public GoSomewhereInRange(Blackboard nboard, Room nroom, int nrange, MovingBox nbox,
+	public GoSomewhereInRange(Blackboard nboard, Supplier<Room> nroom, int nrange, MovingBox nbox,
 		Consumer<FloatVector> noutput) {
 		board = nboard;
 		range = nrange;
@@ -25,7 +25,7 @@ public class GoSomewhereInRange implements IAction {
 		room = nroom;
 	}
 
-	protected Room room;
+	protected Supplier<Room> room;
 
 	protected int range;
 
@@ -39,14 +39,14 @@ public class GoSomewhereInRange implements IAction {
 
 	@Override
 	public void start() {
-		// path = null;
-		Log.e("start");
+
 	}
 
 	@Override
 	public Status doOngoing() {
+		Room room = this.room.get();
 		box.applyMotion();
-		//Room room = board.getOrNull("room", Room.class);
+		// Room room = board.getOrNull("room", Room.class);
 		IFloatPoint xy = box.getXY();
 		if (path == null) {
 			if (room != null) {

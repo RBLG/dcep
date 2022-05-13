@@ -1,7 +1,7 @@
 package main;
 
-import engine.game.IGameEngine;
 import engine.game.defaultge.DefaultGameEngine;
+import engine.game.defaultge.IGameEngine;
 import engine.input.BasicInputEngine;
 import engine.input.IInputEngine;
 import engine.render.engine2d.Basic2DEngine;

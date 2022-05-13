@@ -25,7 +25,7 @@ import my.util.geometry.IRectangle;
 
 public final class RoomVisualGenerator extends Room {
 	private RoomVisualGenerator() {
-		super(null, 0, 0, null, null);
+		super(null, 0, 0, null, null, null);
 	}
 
 	public static int coloor = 0;
@@ -57,7 +57,7 @@ public final class RoomVisualGenerator extends Room {
 
 		/////////////////////////////////////////////////////////
 		ResizedNavigationMesh test = room.pathfinder.getCache()
-				.getFittingNavMesh(new IRectangle.Rectangle(0, 0, 21, 18));
+			.getFittingNavMesh(new IRectangle.Rectangle(0, 0, 21, 18));
 		navtestcv = new CanvasImage(Room.rosizex, Room.rosizey);
 		navtestcv.g.setComposite(AlphaComposite.SrcOver.derive(0.3f));
 		color = 0x8000F000;
@@ -93,7 +93,7 @@ public final class RoomVisualGenerator extends Room {
 				Rectangle jcrec = new Rectangle(jc.x - 1, jc.y - 1, jc.x2 - jc.x + 1 + 1, jc.y2 - jc.y + 1 + 1);
 				room.visuals.add(new DevHollowRectangle(jcrec, Color.orange));
 				room.visuals
-						.add(new BasicText(new Point(jcrec.x, jcrec.y), "" + jc.index, Color.black, DrawLayer.debug));
+					.add(new BasicText(new Point(jcrec.x, jcrec.y), "" + jc.index, Color.black, DrawLayer.debug));
 				if (Boolean.FALSE) {
 					for (Junction li : jc.linkeds) {
 						room.visuals.add(new DevSegment(jc.getCenter(), li.getCenter(), Color.red));

@@ -9,6 +9,7 @@ import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.renderable.Rectangle;
 import engine.save.room.type1.RoomState;
 import engine.save.room.type1.Side;
+import my.util.geometry.IPoint.Point;
 
 /***
  * générateur d'étage pour StageTop2DType1, la méthode fait quasi 100 lignes
@@ -80,7 +81,7 @@ public final class StageGenerator extends StageType1 {
 		for (int itx = 0; itx < fsizex; itx++) {
 			// murs épais sur l'axe des Y
 			Rectangle rec2 = new Rectangle(itx * cyclex - borderx, 0, borderx, cycley * fsizey, wallcolor,
-					DrawLayer.Game_Ceiling);
+				DrawLayer.Game_Ceiling);
 			stage.scene.add(rec2);
 			for (int ity = 0; ity < fsizey; ity++) {
 				// si il y a salle
@@ -104,10 +105,10 @@ public final class StageGenerator extends StageType1 {
 					ArrayList<RoomState> pool;
 					if (itx == spawnx && ity == spawny) { // TODO si spawn
 						pool = RoomPool.pool.get(n, DoorType.any, e, w);
-						rom = new Room(stage, itx * cyclex, ity * cycley, pool, dors);
+						rom = new Room(stage, itx * cyclex, ity * cycley, pool, dors, new Point(itx, ity));
 					} else {
 						pool = RoomPool.pool.get(n, s, e, w);
-						rom = new Room(stage, itx * cyclex, ity * cycley, pool, dors);
+						rom = new Room(stage, itx * cyclex, ity * cycley, pool, dors, new Point(itx, ity));
 					}
 
 					nfloor[itx][ity] = rom;
@@ -116,7 +117,7 @@ public final class StageGenerator extends StageType1 {
 				} else {
 					// si c'est un mur
 					Rectangle rec = new Rectangle(itx * cyclex, ity * cycley, Room.rosizex, Room.rosizey,
-							Color.DARK_GRAY, DrawLayer.Game_Ceiling);
+						Color.DARK_GRAY, DrawLayer.Game_Ceiling);
 					stage.scene.add(rec);
 				}
 			}
@@ -124,7 +125,7 @@ public final class StageGenerator extends StageType1 {
 		// murs épais sur l'axe des Y
 		for (int ity = 0; ity < fsizey; ity++) {
 			Rectangle rec2 = new Rectangle(0, ity * cycley - bordery, cyclex * fsizex, bordery, wallcolor,
-					DrawLayer.Game_Ceiling);
+				DrawLayer.Game_Ceiling);
 			stage.scene.add(rec2);
 		}
 		// print de la map dans la console
