@@ -18,7 +18,7 @@ import engine.physic.basic2Dattacks.IHasAttackables;
 import engine.physic.basic2Dattacks.IHasAttackers;
 import engine.physic.basic2Dvectorial.MovingBox;
 import engine.physic.basic2Dvectorial.MovingBox.IOnCollisionComputedListener;
-import engine.physic.basic2Dvectorial.motionprovider.BasicV2PlayerInput;
+import engine.physic.basic2Dvectorial.motionprovider.BasicV3PlayerInput;
 import engine.render.engine2d.DrawLayer;
 import engine.render.engine2d.renderable.Animation;
 import engine.render.engine2d.renderable.I2DRenderable;
@@ -42,7 +42,7 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 	protected MapGraphicEntity<PlayerVState> visual1;
 	protected HitBoxBasedModifier mod;
 	public StageContext scontext;
-	protected BasicV2PlayerInput motprov;
+	protected BasicV3PlayerInput motprov;
 	protected MovingBox hitbox;
 	public PlayerInteracter interacter = new PlayerInteracter(this);
 	////////////////
@@ -53,7 +53,7 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 	public PlayerEntityV3(StageContext nscontext) {
 		this.scontext = nscontext;
 
-		this.motprov = new BasicV2PlayerInput(scontext.getInputE());
+		this.motprov = new BasicV3PlayerInput(scontext.getInputE(), 6, 1.3f);
 		this.hitbox = new MovingBox(0, 0, 20, 17, this.motprov, null, this);
 		this.mod = new HitBoxBasedModifier(this.hitbox, new IPoint.Point(0, 0), 0);
 
@@ -85,7 +85,6 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 
 	@Override
 	public void leave(Room room) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -159,5 +158,4 @@ public class PlayerEntityV3 implements IRoomTraverserEntity, IHasCollidable, IHa
 	public Cardinal getFacing() {
 		return this.lastdir;
 	}
-
 }
