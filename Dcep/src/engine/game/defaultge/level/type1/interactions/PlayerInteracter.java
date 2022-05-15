@@ -30,14 +30,14 @@ public class PlayerInteracter implements IInteracter {
 	}
 
 	public boolean isTryingToInteract() {
-		return this.plr.scontext.getInputE().isPressed(Keys.enter.value);
+		return this.plr.scontext.getInputE().isPressed(Keys.e.value);
 	}
 
 	protected long doorcd = 0;
 
 	@Override
 	public void tryInteract(IInteractable fed) {
-		if (!this.plr.scontext.getInputE().isPressed(Keys.enter.value)) {
+		if (!this.plr.scontext.getInputE().isPressed(Keys.e.value)) {
 			return;
 		}
 		if (fed instanceof DoorInteractable) {
